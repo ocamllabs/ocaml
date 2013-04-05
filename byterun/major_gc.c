@@ -27,30 +27,30 @@
 #include "roots.h"
 #include "weak.h"
 
-uintnat caml_percent_free;
-uintnat caml_major_heap_increment;
-CAMLexport char *caml_heap_start;
-char *caml_gc_sweep_hp;
-int caml_gc_phase;        /* always Phase_mark, Phase_sweep, or Phase_idle */
-static value *gray_vals;
-static value *gray_vals_cur, *gray_vals_end;
-static asize_t gray_vals_size;
-static int heap_is_pure;   /* The heap is pure if the only gray objects
+PER_CONTEXT uintnat caml_percent_free;
+PER_CONTEXT uintnat caml_major_heap_increment;
+CAMLexport PER_CONTEXT char *caml_heap_start;
+PER_CONTEXT char *caml_gc_sweep_hp;
+PER_CONTEXT int caml_gc_phase;        /* always Phase_mark, Phase_sweep, or Phase_idle */
+static PER_CONTEXT value *gray_vals;
+static PER_CONTEXT value *gray_vals_cur, *gray_vals_end;
+static PER_CONTEXT asize_t gray_vals_size;
+static PER_CONTEXT int heap_is_pure;   /* The heap is pure if the only gray objects
                               below [markhp] are also in [gray_vals]. */
-uintnat caml_allocated_words;
-uintnat caml_dependent_size, caml_dependent_allocated;
-double caml_extra_heap_resources;
-uintnat caml_fl_size_at_phase_change = 0;
+PER_CONTEXT uintnat caml_allocated_words;
+PER_CONTEXT uintnat caml_dependent_size, caml_dependent_allocated;
+PER_CONTEXT double caml_extra_heap_resources;
+PER_CONTEXT uintnat caml_fl_size_at_phase_change = 0;
 
-extern char *caml_fl_merge;  /* Defined in freelist.c. */
+extern PER_CONTEXT char *caml_fl_merge;  /* Defined in freelist.c. */
 
-static char *markhp, *chunk, *limit;
+static PER_CONTEXT char *markhp, *chunk, *limit;
 
-int caml_gc_subphase;     /* Subphase_{main,weak1,weak2,final} */
-static value *weak_prev;
+PER_CONTEXT int caml_gc_subphase;     /* Subphase_{main,weak1,weak2,final} */
+static PER_CONTEXT value *weak_prev;
 
 #ifdef DEBUG
-static unsigned long major_gc_counter = 0;
+static PER_CONTEXT unsigned long major_gc_counter = 0;
 #endif
 
 static void realloc_gray_vals (void)

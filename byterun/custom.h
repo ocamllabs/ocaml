@@ -46,14 +46,14 @@ extern "C" {
 #endif
 
 
-CAMLextern value caml_alloc_custom(struct custom_operations * ops,
+CAMLextern value caml_alloc_custom(const struct custom_operations * ops,
                                    uintnat size, /*size in bytes*/
                                    mlsize_t mem, /*resources consumed*/
                                    mlsize_t max  /*max resources*/);
 
-CAMLextern void caml_register_custom_operations(struct custom_operations * ops);
+CAMLextern void caml_register_custom_operations(const struct custom_operations * ops);
 
-CAMLextern int caml_compare_unordered;
+CAMLextern PER_CONTEXT int caml_compare_unordered;
   /* Used by custom comparison to report unordered NaN-like cases. */
 
 /* <private> */

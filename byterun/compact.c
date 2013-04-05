@@ -24,7 +24,7 @@
 #include "roots.h"
 #include "weak.h"
 
-extern uintnat caml_percent_free;                   /* major_gc.c */
+extern PER_CONTEXT uintnat caml_percent_free;       /* major_gc.c */
 extern void caml_shrink_heap (char *);              /* memory.c */
 
 /* Encoded headers: the color is stored in the 2 least significant bits.
@@ -110,7 +110,7 @@ static void invert_root (value v, value *p)
   invert_pointer_at ((word *) p);
 }
 
-static char *compact_fl;
+static PER_CONTEXT char *compact_fl;
 
 static void init_compact_allocate (void)
 {
@@ -392,7 +392,7 @@ static void do_compaction (void)
   caml_gc_message (0x10, "done.\n", 0);
 }
 
-uintnat caml_percent_max;  /* used in gc_ctrl.c and memory.c */
+PER_CONTEXT uintnat caml_percent_max;  /* used in gc_ctrl.c and memory.c */
 
 void caml_compact_heap (void)
 {

@@ -25,7 +25,7 @@
 #include "mlvalues.h"
 #include "signals.h"
 
-extern uintnat caml_percent_free;                   /* major_gc.c */
+extern PER_CONTEXT uintnat caml_percent_free;           /* major_gc.c */
 
 /* Page table management */
 
@@ -46,7 +46,7 @@ struct page_table {
   uintnat * entries;            /* [size]  */
 };
 
-static struct page_table caml_page_table;
+static PER_CONTEXT struct page_table caml_page_table;
 
 /* Page table entries are the logical 'or' of
    - the key: address of a page (low Page_log bits = 0)

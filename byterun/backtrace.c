@@ -33,11 +33,11 @@
 #include "sys.h"
 #include "backtrace.h"
 
-CAMLexport int caml_backtrace_active = 0;
-CAMLexport int caml_backtrace_pos = 0;
-CAMLexport code_t * caml_backtrace_buffer = NULL;
-CAMLexport value caml_backtrace_last_exn = Val_unit;
-CAMLexport char * caml_cds_file = NULL;
+CAMLexport PER_CONTEXT int caml_backtrace_active = 0;
+CAMLexport PER_CONTEXT int caml_backtrace_pos = 0;
+CAMLexport PER_CONTEXT code_t * caml_backtrace_buffer = NULL;
+CAMLexport PER_CONTEXT value caml_backtrace_last_exn = Val_unit;
+CAMLexport PER_CONTEXT char * caml_cds_file = NULL;
 #define BACKTRACE_BUFFER_SIZE 1024
 
 /* Location of fields in the Instruct.debug_event record */

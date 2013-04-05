@@ -27,6 +27,7 @@
 #include "mlvalues.h"
 #include "prims.h"
 #include "stacks.h"
+#include "startup.h"
 
 #ifndef NATIVE_CODE
 
@@ -34,9 +35,6 @@ CAMLprim value caml_get_global_data(value unit)
 {
   return caml_global_data;
 }
-
-char * caml_section_table = NULL;
-asize_t caml_section_table_size;
 
 CAMLprim value caml_get_section_table(value unit)
 {

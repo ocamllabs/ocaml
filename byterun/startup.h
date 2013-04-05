@@ -17,6 +17,16 @@
 #include "mlvalues.h"
 #include "exec.h"
 
+extern int caml_parser_trace;
+extern char * caml_exe_name;
+extern char ** caml_main_argv;
+
+#ifndef NATIVE_CODE
+extern char * caml_section_table;
+extern asize_t caml_section_table_size;
+#endif
+
+
 CAMLextern void caml_main(char **argv);
 
 CAMLextern void caml_startup_code(

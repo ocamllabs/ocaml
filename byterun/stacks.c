@@ -20,15 +20,15 @@
 #include "mlvalues.h"
 #include "stacks.h"
 
-CAMLexport value * caml_stack_low;
-CAMLexport value * caml_stack_high;
-CAMLexport value * caml_stack_threshold;
-CAMLexport value * caml_extern_sp;
-CAMLexport value * caml_trapsp;
-CAMLexport value * caml_trap_barrier;
+CAMLexport PER_CONTEXT value * caml_stack_low;
+CAMLexport PER_CONTEXT value * caml_stack_high;
+CAMLexport PER_CONTEXT value * caml_stack_threshold;
+CAMLexport PER_CONTEXT value * caml_extern_sp;
+CAMLexport PER_CONTEXT value * caml_trapsp;
+CAMLexport PER_CONTEXT value * caml_trap_barrier;
 value caml_global_data = 0;
 
-uintnat caml_max_stack_size;            /* also used in gc_ctrl.c */
+PER_CONTEXT uintnat caml_max_stack_size;            /* also used in gc_ctrl.c */
 
 void caml_init_stack (uintnat initial_max_size)
 {

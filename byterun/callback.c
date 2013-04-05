@@ -28,7 +28,7 @@
 #include "fix_code.h"
 #include "stacks.h"
 
-CAMLexport int caml_callback_depth = 0;
+CAMLexport PER_CONTEXT int caml_callback_depth = 0;
 
 #ifndef LOCAL_CALLBACK_BYTECODE
 static opcode_t callback_code[] = { ACC, 0, APPLY, 0, POP, 1, STOP };
@@ -37,7 +37,7 @@ static opcode_t callback_code[] = { ACC, 0, APPLY, 0, POP, 1, STOP };
 
 #ifdef THREADED_CODE
 
-static int callback_code_threaded = 0;
+static PER_CONTEXT int callback_code_threaded = 0;
 
 static void thread_callback(void)
 {

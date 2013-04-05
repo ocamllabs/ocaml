@@ -48,6 +48,7 @@
 #include "signals.h"
 #include "stacks.h"
 #include "sys.h"
+#include "startup.h"
 
 static char * error_message(void)
 {
@@ -114,7 +115,7 @@ CAMLprim value caml_sys_exit(value retcode)
 #endif
 #endif
 
-static int sys_open_flags[] = {
+static const int sys_open_flags[] = {
   O_RDONLY, O_WRONLY, O_APPEND | O_WRONLY, O_CREAT, O_TRUNC, O_EXCL,
   O_BINARY, O_TEXT, O_NONBLOCK
 };
@@ -207,9 +208,6 @@ CAMLprim value caml_sys_getenv(value var)
   return caml_copy_string(res);
 }
 
-char * caml_exe_name;
-static char ** caml_main_argv;
-
 CAMLprim value caml_sys_get_argv(value unit)
 {
   CAMLparam0 ();   /* unit is unused */
@@ -220,12 +218,6 @@ CAMLprim value caml_sys_get_argv(value unit)
   Field(res, 0) = exe_name;
   Field(res, 1) = argv;
   CAMLreturn(res);
-}
-
-void caml_sys_init(char * exe_name, char **argv)
-{
-  caml_exe_name = exe_name;
-  caml_main_argv = argv;
 }
 
 #ifdef _WIN32

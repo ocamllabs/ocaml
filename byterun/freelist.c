@@ -38,7 +38,7 @@ typedef struct {
 
 /* The sentinel can be located anywhere in memory, but it must not be
    adjacent to any heap object. */
-static struct {
+static PER_CONTEXT struct {
   value filler1; /* Make sure the sentinel is never adjacent to any block. */
   header_t h;
   value first_bp;
@@ -46,24 +46,25 @@ static struct {
 } sentinel = {0, Make_header (0, 0, Caml_blue), 0, 0};
 
 #define Fl_head ((char *) (&(sentinel.first_bp)))
-static char *fl_prev = Fl_head;  /* Current allocation pointer. */
-static char *fl_last = NULL;     /* Last block in the list.  Only valid
-                                 just after [caml_fl_allocate] returns NULL. */
-char *caml_fl_merge = Fl_head;   /* Current insertion pointer.  Managed
-                                    jointly with [sweep_slice]. */
-asize_t caml_fl_cur_size = 0;    /* Number of words in the free list,
-                                    including headers but not fragments. */
+/* Current allocation pointer. */
+static PER_CONTEXT char *fl_prev;  
+/* Last block in the list.  Only valid just after [caml_fl_allocate] returns NULL. */
+static PER_CONTEXT char *fl_last = NULL;     
+/* Current insertion pointer.  Managed jointly with [sweep_slice]. */
+PER_CONTEXT char *caml_fl_merge;   
+/* Number of words in the free list, including headers but not fragments. */
+PER_CONTEXT asize_t caml_fl_cur_size = 0;
 
 #define FLP_MAX 1000
-static char *flp [FLP_MAX];
-static int flp_size = 0;
-static char *beyond = NULL;
+static PER_CONTEXT char *flp [FLP_MAX];
+static PER_CONTEXT int flp_size = 0;
+static PER_CONTEXT char *beyond = NULL;
 
 #define Next(b) (((block *) (b))->next_bp)
 
 #define Policy_next_fit 0
 #define Policy_first_fit 1
-uintnat caml_allocation_policy = Policy_next_fit;
+PER_CONTEXT uintnat caml_allocation_policy = Policy_next_fit;
 #define policy caml_allocation_policy
 
 #ifdef DEBUG
@@ -334,12 +335,13 @@ char *caml_fl_allocate (mlsize_t wo_sz)
   return NULL;  /* NOT REACHED */
 }
 
-static char *last_fragment;
+static PER_CONTEXT char *last_fragment;
 
 void caml_fl_init_merge (void)
 {
   last_fragment = NULL;
   caml_fl_merge = Fl_head;
+  fl_prev = Fl_head;
 #ifdef DEBUG
   fl_check ();
 #endif

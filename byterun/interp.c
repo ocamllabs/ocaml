@@ -183,7 +183,7 @@ extern intnat caml_safe_mod(intnat p, intnat q);
 
 
 #ifdef DEBUG
-static intnat caml_bcodcount;
+static PER_CONTEXT intnat caml_bcodcount;
 #endif
 
 /* The interpreter itself */
@@ -221,7 +221,7 @@ value caml_interprete(code_t prog, asize_t prog_size)
 #endif
 
 #ifdef THREADED_CODE
-  static void * jumptable[] = {
+  const static void * const jumptable[] = {
 #    include "jumptbl.h"
   };
 #endif
@@ -1042,7 +1042,7 @@ value caml_interprete(code_t prog, asize_t prog_size)
       value meths = Field (accu, 0);
       value ofs;
 #ifdef CAML_TEST_CACHE
-      static int calls = 0, hits = 0;
+      static PER_CONTEXT int calls = 0, hits = 0;
       if (calls >= 10000000) {
         fprintf(stderr, "cache hit = %d%%\n", hits / 100000);
         calls = 0; hits = 0;

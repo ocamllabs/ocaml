@@ -279,17 +279,16 @@ CAMLprim value caml_fill_string(value s, value offset, value len, value init)
   return Val_unit;
 }
 
+void caml_init_str_locale(void)
+{
+#ifdef HAS_LOCALE
+  setlocale(LC_CTYPE, "");
+#endif
+}
+
 CAMLprim value caml_is_printable(value chr)
 {
   int c;
-
-#ifdef HAS_LOCALE
-  static int locale_is_set = 0;
-  if (! locale_is_set) {
-    setlocale(LC_CTYPE, "");
-    locale_is_set = 1;
-  }
-#endif
   c = Int_val(chr);
   return Val_bool(isprint(c));
 }

@@ -98,6 +98,16 @@ typedef struct { uint32 l, h; } uint64, int64;
 #define THREADED_CODE
 #endif
 
+#if defined(MULTI_CONTEXT)
+#if defined(__GNUC__)
+#define PER_CONTEXT __thread
+#else
+#error "Thread local variables not available"
+#endif
+#else
+/* per-context variables are normal globals if MULTI_CONTEXT not declared */
+#define PER_CONTEXT
+#endif
 
 /* Do not change this definition. */
 #define Page_size (1 << Page_log)

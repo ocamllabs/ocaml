@@ -29,24 +29,26 @@
 #endif
 
 #ifndef NATIVE_CODE
-extern uintnat caml_max_stack_size;    /* defined in stacks.c */
+extern PER_CONTEXT uintnat caml_max_stack_size;    /* defined in stacks.c */
 #endif
 
-double caml_stat_minor_words = 0.0,
+PER_CONTEXT double
+       caml_stat_minor_words = 0.0,
        caml_stat_promoted_words = 0.0,
        caml_stat_major_words = 0.0;
 
-intnat caml_stat_minor_collections = 0,
+PER_CONTEXT intnat
+       caml_stat_minor_collections = 0,
        caml_stat_major_collections = 0,
        caml_stat_heap_size = 0,              /* bytes */
        caml_stat_top_heap_size = 0,          /* bytes */
        caml_stat_compactions = 0,
        caml_stat_heap_chunks = 0;
 
-extern uintnat caml_major_heap_increment;  /* bytes; see major_gc.c */
-extern uintnat caml_percent_free;          /*        see major_gc.c */
-extern uintnat caml_percent_max;           /*        see compact.c */
-extern uintnat caml_allocation_policy;     /*        see freelist.c */
+extern PER_CONTEXT uintnat caml_major_heap_increment;  /* bytes; see major_gc.c */
+extern PER_CONTEXT uintnat caml_percent_free;          /*        see major_gc.c */
+extern PER_CONTEXT uintnat caml_percent_max;           /*        see compact.c */
+extern PER_CONTEXT uintnat caml_allocation_policy;     /*        see freelist.c */
 
 #define Next(hp) ((hp) + Bhsize_hp (hp))
 

@@ -21,10 +21,10 @@
 #include "memory.h"
 #include "mlvalues.h"
 
-value caml_weak_list_head = 0;
+PER_CONTEXT value caml_weak_list_head = 0;
 
-static value weak_dummy = 0;
-value caml_weak_none = (value) &weak_dummy;
+static const value weak_dummy = 0;
+const value caml_weak_none = (value) &weak_dummy;
 
 CAMLprim value caml_weak_create (value len)
 {

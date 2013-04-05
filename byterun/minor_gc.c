@@ -26,19 +26,19 @@
 #include "signals.h"
 #include "weak.h"
 
-asize_t caml_minor_heap_size;
-static void *caml_young_base = NULL;
-CAMLexport char *caml_young_start = NULL, *caml_young_end = NULL;
-CAMLexport char *caml_young_ptr = NULL, *caml_young_limit = NULL;
+PER_CONTEXT asize_t caml_minor_heap_size;
+static PER_CONTEXT void *caml_young_base = NULL;
+CAMLexport PER_CONTEXT char *caml_young_start = NULL, *caml_young_end = NULL;
+CAMLexport PER_CONTEXT char *caml_young_ptr = NULL, *caml_young_limit = NULL;
 
-CAMLexport struct caml_ref_table
+CAMLexport PER_CONTEXT struct caml_ref_table
   caml_ref_table = { NULL, NULL, NULL, NULL, NULL, 0, 0},
   caml_weak_ref_table = { NULL, NULL, NULL, NULL, NULL, 0, 0};
 
-int caml_in_minor_collection = 0;
+PER_CONTEXT int caml_in_minor_collection = 0;
 
 #ifdef DEBUG
-static unsigned long minor_gc_counter = 0;
+static PER_CONTEXT unsigned long minor_gc_counter = 0;
 #endif
 
 void caml_alloc_table (struct caml_ref_table *tbl, asize_t sz, asize_t rsv)
@@ -101,7 +101,7 @@ void caml_set_minor_heap_size (asize_t size)
   reset_table (&caml_weak_ref_table);
 }
 
-static value oldify_todo_list = 0;
+static PER_CONTEXT value oldify_todo_list = 0;
 
 /* Note that the tests on the tag depend on the fact that Infix_tag,
    Forward_tag, and No_scan_tag are contiguous. */

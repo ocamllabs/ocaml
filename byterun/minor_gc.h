@@ -17,10 +17,10 @@
 
 #include "misc.h"
 
-CAMLextern char *caml_young_start, *caml_young_ptr;
-CAMLextern char *caml_young_end, *caml_young_limit;
-extern asize_t caml_minor_heap_size;
-extern int caml_in_minor_collection;
+CAMLextern PER_CONTEXT char *caml_young_start, *caml_young_ptr;
+CAMLextern PER_CONTEXT char *caml_young_end, *caml_young_limit;
+extern PER_CONTEXT asize_t caml_minor_heap_size;
+extern PER_CONTEXT int caml_in_minor_collection;
 
 struct caml_ref_table {
   value **base;
@@ -31,7 +31,7 @@ struct caml_ref_table {
   asize_t size;
   asize_t reserve;
 };
-CAMLextern struct caml_ref_table caml_ref_table, caml_weak_ref_table;
+CAMLextern PER_CONTEXT struct caml_ref_table caml_ref_table, caml_weak_ref_table;
 
 #define Is_young(val) \
   (Assert (Is_block (val)), \

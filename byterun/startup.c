@@ -61,7 +61,13 @@
 #define SEEK_END 2
 #endif
 
-extern int caml_parser_trace;
+int caml_parser_trace;
+char * caml_exe_name;
+char ** caml_main_argv;
+
+char * caml_section_table = NULL;
+asize_t caml_section_table_size;
+
 
 CAMLexport header_t caml_atom_table[256];
 
@@ -326,7 +332,8 @@ static void parse_camlrunparam(void)
   }
 }
 
-extern void caml_init_ieee_floats (void);
+extern void caml_init_ieee_floats (void); /* in floats.c */
+extern void caml_init_str_locale (void); /* in str.c */
 
 #ifdef _WIN32
 extern void caml_signal_thread(void * lpParam);
@@ -356,6 +363,7 @@ CAMLexport void caml_main(char **argv)
   /* Machine-dependent initialization of the floating-point hardware
      so that it behaves as much as possible as specified in IEEE */
   caml_init_ieee_floats();
+  caml_init_str_locale();
 #ifdef _MSC_VER
   caml_install_invalid_parameter_handler();
 #endif
@@ -425,7 +433,8 @@ CAMLexport void caml_main(char **argv)
   caml_oldify_mopup ();
   /* Initialize system libraries */
   caml_init_exceptions();
-  caml_sys_init(exe_name, argv + pos);
+  caml_exe_name = exe_name;
+  caml_main_argv = argv + pos;
 #ifdef _WIN32
   /* Start a thread to handle signals */
   if (getenv("CAMLSIGPIPE"))
@@ -461,6 +470,7 @@ CAMLexport void caml_startup_code(
 #endif
 
   caml_init_ieee_floats();
+  caml_init_str_locale();
 #ifdef _MSC_VER
   caml_install_invalid_parameter_handler();
 #endif
@@ -514,7 +524,8 @@ CAMLexport void caml_startup_code(
   caml_section_table_size = section_table_size;
   /* Initialize system libraries */
   caml_init_exceptions();
-  caml_sys_init(exe_name, argv);
+  caml_exe_name = exe_name;
+  caml_main_argv = argv;
   /* Execute the program */
   caml_debugger(PROGRAM_START);
   res = caml_interprete(caml_start_code, caml_code_size);

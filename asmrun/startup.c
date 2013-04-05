@@ -35,7 +35,10 @@
 #include "ui.h"
 #endif
 
-extern int caml_parser_trace;
+int caml_parser_trace;
+char * caml_exe_name;
+char ** caml_main_argv;
+
 CAMLexport header_t caml_atom_table[256];
 char * caml_code_area_start, * caml_code_area_end;
 
@@ -144,7 +147,8 @@ struct longjmp_buffer caml_termination_jmpbuf;
 void (*caml_termination_hook)(void *) = NULL;
 
 extern value caml_start_program (void);
-extern void caml_init_ieee_floats (void);
+extern void caml_init_ieee_floats (void); /* in floats.c */
+extern void caml_init_str_locale (void); /* in str.c */
 extern void caml_init_signals (void);
 
 #ifdef _MSC_VER
@@ -165,6 +169,7 @@ void caml_main(char **argv)
   char tos;
 
   caml_init_ieee_floats();
+  caml_init_str_locale();
 #ifdef _MSC_VER
   caml_install_invalid_parameter_handler();
 #endif
@@ -189,7 +194,8 @@ void caml_main(char **argv)
 #else
   exe_name = caml_search_exe_in_path(exe_name);
 #endif
-  caml_sys_init(exe_name, argv);
+  caml_exe_name = exe_name;
+  caml_main_argv = argv;
   if (sigsetjmp(caml_termination_jmpbuf.buf, 0)) {
     if (caml_termination_hook != NULL) caml_termination_hook(NULL);
     return;

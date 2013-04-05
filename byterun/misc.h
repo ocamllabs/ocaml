@@ -82,7 +82,7 @@ extern void caml_ext_table_free(struct ext_table * tbl, int free_entries);
 
 /* GC flags and messages */
 
-extern uintnat caml_verb_gc;
+extern PER_CONTEXT uintnat caml_verb_gc;
 void caml_gc_message (int, char *, uintnat);
 
 /* Memory routines */

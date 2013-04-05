@@ -27,9 +27,9 @@
 
 /* Roots registered from C functions */
 
-struct caml__roots_block *caml_local_roots = NULL;
+PER_CONTEXT struct caml__roots_block *caml_local_roots = NULL;
 
-void (*caml_scan_roots_hook) (scanning_action) = NULL;
+PER_CONTEXT void (*caml_scan_roots_hook) (scanning_action) = NULL;
 
 /* The hashtable of frame descriptors */
 

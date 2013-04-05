@@ -18,7 +18,7 @@
 
 #include "mlvalues.h"
 
-extern value caml_weak_list_head;
-extern value caml_weak_none;
+extern PER_CONTEXT value caml_weak_list_head;
+extern const value caml_weak_none;
 
 #endif /* CAML_WEAK_H */

@@ -46,7 +46,7 @@ CAMLextern value * caml_named_value (char const * name);
 CAMLextern void caml_main (char ** argv);
 CAMLextern void caml_startup (char ** argv);
 
-CAMLextern int caml_callback_depth;
+CAMLextern PER_CONTEXT int caml_callback_depth;
 
 #ifdef __cplusplus
 }

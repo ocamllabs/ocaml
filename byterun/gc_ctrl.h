@@ -16,12 +16,12 @@
 
 #include "misc.h"
 
-extern double
+extern PER_CONTEXT double
      caml_stat_minor_words,
      caml_stat_promoted_words,
      caml_stat_major_words;
 
-extern intnat
+extern PER_CONTEXT intnat
      caml_stat_minor_collections,
      caml_stat_major_collections,
      caml_stat_heap_size,

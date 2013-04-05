@@ -153,7 +153,8 @@ struct caml__roots_block {
   value *tables [5];
 };
 
-CAMLextern struct caml__roots_block *caml_local_roots;  /* defined in roots.c */
+/* defined in roots.c */
+CAMLextern PER_CONTEXT struct caml__roots_block *caml_local_roots; 
 
 /* The following macros are used to declare C local variables and
    function parameters of type [value].

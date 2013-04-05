@@ -30,41 +30,41 @@
 #include "misc.h"
 #include "reverse.h"
 
-static unsigned char * intern_src;
+static PER_CONTEXT unsigned char * intern_src;
 /* Reading pointer in block holding input data. */
 
-static unsigned char * intern_input;
+static PER_CONTEXT unsigned char * intern_input;
 /* Pointer to beginning of block holding input data.
    Meaningful only if intern_input_malloced = 1. */
 
-static int intern_input_malloced;
+static PER_CONTEXT int intern_input_malloced;
 /* 1 if intern_input was allocated by caml_stat_alloc()
    and needs caml_stat_free() on error, 0 otherwise. */
 
-static header_t * intern_dest;
+static PER_CONTEXT header_t * intern_dest;
 /* Writing pointer in destination block */
 
-static char * intern_extra_block;
+static PER_CONTEXT char * intern_extra_block;
 /* If non-NULL, point to new heap chunk allocated with caml_alloc_for_heap. */
 
-static asize_t obj_counter;
+static PER_CONTEXT asize_t obj_counter;
 /* Count how many objects seen so far */
 
-static value * intern_obj_table;
+static PER_CONTEXT value * intern_obj_table;
 /* The pointers to objects already seen */
 
-static unsigned int intern_color;
+static PER_CONTEXT unsigned int intern_color;
 /* Color to assign to newly created headers */
 
-static header_t intern_header;
+static PER_CONTEXT header_t intern_header;
 /* Original header of the destination block.
    Meaningful only if intern_extra_block is NULL. */
 
-static value intern_block;
+static PER_CONTEXT value intern_block;
 /* Point to the heap block allocated as destination block.
    Meaningful only if intern_extra_block is NULL. */
 
-static value * camlinternaloo_last_id = NULL;
+static PER_CONTEXT value * camlinternaloo_last_id = NULL;
 /* Pointer to a reference holding the last object id.
    -1 means not available (CamlinternalOO not loaded). */
 
@@ -200,11 +200,16 @@ struct intern_item {
 #define INTERN_STACK_INIT_SIZE 256
 #define INTERN_STACK_MAX_SIZE (1024*1024*100)
 
-static struct intern_item intern_stack_init[INTERN_STACK_INIT_SIZE];
+static PER_CONTEXT struct intern_item intern_stack_init[INTERN_STACK_INIT_SIZE];
 
-static struct intern_item * intern_stack = intern_stack_init;
-static struct intern_item * intern_stack_limit = intern_stack_init
-                                                   + INTERN_STACK_INIT_SIZE;
+static PER_CONTEXT struct intern_item * intern_stack;
+static PER_CONTEXT struct intern_item * intern_stack_limit;
+
+static void intern_initialise_stack(void)
+{
+  intern_stack = intern_stack_init;
+  intern_stack_limit = intern_stack_init + INTERN_STACK_INIT_SIZE;
+}
 
 /* Free the recursion stack if needed */
 static void intern_free_stack(void)
@@ -212,8 +217,7 @@ static void intern_free_stack(void)
   if (intern_stack != intern_stack_init) {
     free(intern_stack);
     /* Reinitialize the globals for next time around */
-    intern_stack = intern_stack_init;
-    intern_stack_limit = intern_stack + INTERN_STACK_INIT_SIZE;
+    intern_initialise_stack();
   }
 }
 
@@ -277,6 +281,8 @@ static void intern_rec(value *dest)
   char * codeptr;
   struct intern_item * sp;
 
+  if (!intern_stack)
+    intern_initialise_stack();
   sp = intern_stack;
 
   /* Initially let's try to read the first object from the stream */

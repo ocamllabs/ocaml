@@ -19,6 +19,7 @@
 #include "mlvalues.h"
 #include "memory.h"
 #include "alloc.h"
+#include "startup.h"
 
 #define ERRCODE 256
 
@@ -67,8 +68,6 @@ struct parser_env {       /* Mirrors parser_env in ../stdlib/parsing.ml */
 #else
 #define Short(tbl,n) (((short *)(tbl))[n])
 #endif
-
-int caml_parser_trace = 0;
 
 /* Input codes */
 /* Mirrors parser_input in ../stdlib/parsing.ml */

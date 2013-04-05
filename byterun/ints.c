@@ -232,7 +232,7 @@ static uintnat int32_deserialize(void * dst)
   return 4;
 }
 
-CAMLexport struct custom_operations caml_int32_ops = {
+CAMLexport const struct custom_operations caml_int32_ops = {
   "_i",
   custom_finalize_default,
   int32_cmp,
@@ -434,7 +434,7 @@ static uintnat int64_deserialize(void * dst)
   return 8;
 }
 
-CAMLexport struct custom_operations caml_int64_ops = {
+CAMLexport const struct custom_operations caml_int64_ops = {
   "_j",
   custom_finalize_default,
   int64_cmp,
@@ -706,7 +706,7 @@ static uintnat nativeint_deserialize(void * dst)
   return sizeof(long);
 }
 
-CAMLexport struct custom_operations caml_nativeint_ops = {
+CAMLexport const struct custom_operations caml_nativeint_ops = {
   "_n",
   custom_finalize_default,
   nativeint_cmp,

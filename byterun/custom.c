@@ -19,7 +19,7 @@
 #include "memory.h"
 #include "mlvalues.h"
 
-CAMLexport value caml_alloc_custom(struct custom_operations * ops,
+CAMLexport value caml_alloc_custom(const struct custom_operations * ops,
                                    uintnat size,
                                    mlsize_t mem,
                                    mlsize_t max)
@@ -47,7 +47,7 @@ struct custom_operations_list {
 
 static struct custom_operations_list * custom_ops_table = NULL;
 
-CAMLexport void caml_register_custom_operations(struct custom_operations * ops)
+CAMLexport void caml_register_custom_operations(const struct custom_operations * ops)
 {
   struct custom_operations_list * l =
     caml_stat_alloc(sizeof(struct custom_operations_list));
@@ -89,9 +89,9 @@ struct custom_operations * caml_final_custom_operations(final_fun fn)
   return ops;
 }
 
-extern struct custom_operations caml_int32_ops,
-                                caml_nativeint_ops,
-                                caml_int64_ops;
+extern const struct custom_operations caml_int32_ops,
+                                      caml_nativeint_ops,
+                                      caml_int64_ops;
 
 void caml_init_custom_operations(void)
 {
