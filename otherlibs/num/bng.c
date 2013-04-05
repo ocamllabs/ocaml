@@ -16,6 +16,48 @@
 #include "bng.h"
 #include "config.h"
 
+static bngcarry bng_generic_add_carry
+       (bng a/*[alen]*/,  bngsize alen, bngcarry carry);
+static bngcarry bng_generic_add
+       (bng a/*[alen]*/, bngsize alen,
+        bng b/*[blen]*/, bngsize blen,
+        bngcarry carry);
+static bngcarry bng_generic_sub_carry
+       (bng a/*[alen]*/,  bngsize alen, bngcarry carry);
+static bngcarry bng_generic_sub
+       (bng a/*[alen]*/, bngsize alen,
+        bng b/*[blen]*/, bngsize blen,
+        bngcarry carry);
+static bngdigit bng_generic_shift_left
+     (bng a/*[alen]*/, bngsize alen,
+      int shift);
+static bngdigit bng_generic_shift_right
+     (bng a/*[alen]*/, bngsize alen,
+      int shift);
+static bngdigit bng_generic_mult_add_digit
+     (bng a/*[alen]*/, bngsize alen,
+      bng b/*[blen]*/, bngsize blen,
+      bngdigit d);
+static bngdigit bng_generic_mult_sub_digit
+     (bng a/*[alen]*/, bngsize alen,
+      bng b/*[blen]*/, bngsize blen,
+      bngdigit d);
+static bngcarry bng_generic_mult_add
+     (bng a/*[alen]*/, bngsize alen,
+      bng b/*[blen]*/, bngsize blen,
+      bng c/*[clen]*/, bngsize clen);
+static bngcarry bng_generic_square_add
+     (bng a/*[alen]*/, bngsize alen,
+      bng b/*[blen]*/, bngsize blen);
+static bngdigit bng_generic_div_rem_norm_digit
+     (bng a/*[len-1]*/, bng b/*[len]*/, bngsize len, bngdigit d);
+static void bng_generic_div_rem
+       (bng n/*[nlen]*/, bngsize nlen,
+        bng d/*[dlen]*/, bngsize dlen);
+
+
+
+
 #if defined(__GNUC__) && BNG_ASM_LEVEL > 0
 #if defined(BNG_ARCH_ia32)
 #include "bng_ia32.c"
@@ -407,7 +449,12 @@ static void bng_generic_div_rem
 
 /**** Construction of the table of operations ****/
 
-struct bng_operations bng_ops = {
+#ifndef BNG_OPS_DEFINED
+const struct bng_operations bng_ops
+#else
+const struct bng_operations bng_generic_ops
+#endif
+ = {
   bng_generic_add_carry,
   bng_generic_add,
   bng_generic_sub_carry,
@@ -427,9 +474,3 @@ struct bng_operations bng_ops = {
   bng_generic_div_rem
 };
 
-void bng_init(void)
-{
-#ifdef BNG_SETUP_OPS
-  BNG_SETUP_OPS;
-#endif
-}

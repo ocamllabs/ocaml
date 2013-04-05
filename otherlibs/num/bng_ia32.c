@@ -391,21 +391,22 @@ static int bng_ia32_sse2_supported(void)
 
 #endif
 
-static void bng_ia32_setup_ops(void)
-{
-#if BNG_ASM_LEVEL >= 2
-  if (bng_ia32_sse2_supported()) {
-    bng_ops.add = bng_ia32sse2_add;
-    bng_ops.sub = bng_ia32sse2_sub;
-    bng_ops.mult_add_digit = bng_ia32sse2_mult_add_digit;
-    bng_ops.mult_sub_digit = bng_ia32sse2_mult_sub_digit;
-    return;
-  }
-#endif
-  bng_ops.add = bng_ia32_add;
-  bng_ops.sub = bng_ia32_sub;
-  bng_ops.mult_add_digit = bng_ia32_mult_add_digit;
-  bng_ops.mult_sub_digit = bng_ia32_mult_sub_digit;
-}
+/* The "SSE2" versions above use MMX, not SSE2. We'll just stick with
+   the scalar version for now, ADC has gotten faster since the P4 days */
 
-#define BNG_SETUP_OPS bng_ia32_setup_ops()
+const struct bng_operations bng_ops = {
+  bng_generic_add_carry,
+  bng_ia32_add,
+  bng_generic_sub_carry,
+  bng_ia32_sub,
+  bng_generic_shift_left,
+  bng_generic_shift_right,
+  bng_ia32_mult_add_digit,
+  bng_ia32_mult_sub_digit,
+  bng_generic_mult_add,
+  bng_generic_square_add,
+  bng_generic_div_rem_norm_digit,
+  bng_generic_div_rem_norm_digit,
+  bng_generic_div_rem
+};
+#define BNG_OPS_DEFINED

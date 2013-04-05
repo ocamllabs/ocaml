@@ -44,7 +44,7 @@ static uintnat caml_ba_num_elts(struct caml_ba_array * b)
 
 /* Size in bytes of a bigarray element, indexed by bigarray kind */
 
-int caml_ba_element_size[] =
+const int caml_ba_element_size[] =
 { 4 /*FLOAT32*/, 8 /*FLOAT64*/,
   1 /*SINT8*/, 1 /*UINT8*/,
   2 /*SINT16*/, 2 /*UINT16*/,
@@ -68,7 +68,7 @@ static int caml_ba_compare(value v1, value v2);
 static intnat caml_ba_hash(value v);
 static void caml_ba_serialize(value, uintnat *, uintnat *);
 uintnat caml_ba_deserialize(void * dst);
-static struct custom_operations caml_ba_ops = {
+static const struct custom_operations caml_ba_ops = {
   "_bigarray",
   caml_ba_finalize,
   caml_ba_compare,

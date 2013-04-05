@@ -184,12 +184,20 @@ static bngdigit bng_amd64_mult_sub_digit
   return 1;
 }
 
-static void bng_amd64_setup_ops(void)
-{
-  bng_ops.add = bng_amd64_add;
-  bng_ops.sub = bng_amd64_sub;
-  bng_ops.mult_add_digit = bng_amd64_mult_add_digit;
-  bng_ops.mult_sub_digit = bng_amd64_mult_sub_digit;
-}
+const struct bng_operations bng_ops = {
+  bng_generic_add_carry,
+  bng_amd64_add,
+  bng_generic_sub_carry,
+  bng_amd64_sub,
+  bng_generic_shift_left,
+  bng_generic_shift_right,
+  bng_amd64_mult_add_digit,
+  bng_amd64_mult_sub_digit,
+  bng_generic_mult_add,
+  bng_generic_square_add,
+  bng_generic_div_rem_norm_digit,
+  bng_generic_div_rem_norm_digit,
+  bng_generic_div_rem
+};
 
-#define BNG_SETUP_OPS bng_amd64_setup_ops()
+#define BNG_OPS_DEFINED

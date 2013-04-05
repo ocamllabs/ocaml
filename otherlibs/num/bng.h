@@ -126,10 +126,7 @@ struct bng_operations {
 #define bng_div_rem bng_ops.div_rem
 };
 
-extern struct bng_operations bng_ops;
-
-/* Initialize the BNG library */
-extern void bng_init(void);
+extern const struct bng_operations bng_ops;
 
 /* {a,alen} := 0 */
 #define bng_zero(a,alen) memset((a), 0, (alen) * sizeof(bngdigit))

@@ -31,7 +31,7 @@ static intnat hash_nat(value);
 static void serialize_nat(value, uintnat *, uintnat *);
 static uintnat deserialize_nat(void * dst);
 
-static struct custom_operations nat_operations = {
+static const struct custom_operations nat_operations = {
   "_nat",
   custom_finalize_default,
   custom_compare_default,
@@ -43,7 +43,6 @@ static struct custom_operations nat_operations = {
 
 CAMLprim value initialize_nat(value unit)
 {
-  bng_init();
   register_custom_operations(&nat_operations);
   return Val_unit;
 }
