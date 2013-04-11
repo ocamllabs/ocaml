@@ -562,7 +562,7 @@ static void intern_add_to_heap(mlsize_t whsize)
     Assert(intern_dest <= end_extra_block);
     if (intern_dest < end_extra_block){
       caml_make_free_blocks ((value *) intern_dest,
-                             end_extra_block - intern_dest, 0, Caml_white);
+                             end_extra_block - intern_dest, 0, 0);
     }
     caml_allocated_words +=
       Wsize_bsize ((char *) intern_dest - intern_extra_block);

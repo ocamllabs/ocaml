@@ -159,10 +159,18 @@ bits  63    10 9     8 7   0
 /* Pointer to the first field. */
 #define Op_val(x) ((value *) (x))
 /* Fields are numbered from 0. */
-#define Field(x, i) (((value *)(x)) [i])           /* Also an l-value. */
+#define Field(x, i) (((value *)(x)) [Assert(!Is_long((value)(x))),/*Assert(!Is_freelist_hd(Hd_val(x))),*/i])           /* Also an l-value. */
 
 typedef int32 opcode_t;
 typedef opcode_t * code_t;
+
+/* Freelist_tag is a sentinel used to mark blocks on the freelist.
+   There should never be any objects with Freelist_tag accessible
+   from the heap.
+ */
+#define Freelist_tag 245
+#define Is_freelist_hd(hd) (Tag_hd(hd) == Freelist_tag)
+
 
 /* NOTE: [Forward_tag] and [Infix_tag] must be just under
    [No_scan_tag], with [Infix_tag] the lower one.

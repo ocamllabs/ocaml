@@ -63,7 +63,11 @@ let load_path = ref ([] : string list)
 
 let interface_suffix = ref ".mli"
 
-let max_tag = 245
+let max_tag = 244
+
+(* Tag 245 is reserved for the freelist; it is not exposed via obj.ml
+   since such objects are never accessible on the heap *)
+
 (* This is normally the same as in obj.ml, but we have to define it
    separately because it can differ when we're in the middle of a
    bootstrapping phase. *)

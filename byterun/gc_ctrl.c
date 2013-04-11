@@ -61,7 +61,7 @@ static void check_head (value v)
   Assert (Is_in_heap (v));
 
   Assert (Wosize_val (v) != 0);
-  Assert (Color_hd (Hd_val (v)) != Caml_blue);
+  Assert (!Is_freelist_hd (Hd_val (v)));
   Assert (Is_in_heap (v));
   if (Tag_val (v) == Infix_tag){
     int offset = Wsize_bsize (Infix_offset_val (v));
@@ -110,7 +110,7 @@ static void check_block (char *hp)
       f = Field (v, i);
       if (Is_block (f) && Is_in_heap (f)){
         check_head (f);
-        Assert (Color_val (f) != Caml_blue);
+        Assert (!Is_freelist_hd(Hd_val(f)));
       }
     }
   }
@@ -148,56 +148,50 @@ static value heap_stats (int returnstats)
     cur_hp = chunk;
     while (cur_hp < chunk_end){
       cur_hd = Hd_hp (cur_hp);
-                                           Assert (Next (cur_hp) <= chunk_end);
-      switch (Color_hd (cur_hd)){
-      case Caml_white:
-        if (Wosize_hd (cur_hd) == 0){
-          ++ fragments;
-          Assert (prev_hp == NULL
-                  || Color_hp (prev_hp) != Caml_blue
-                  || cur_hp == caml_gc_sweep_hp);
-        }else{
-          if (caml_gc_phase == Phase_sweep && cur_hp >= caml_gc_sweep_hp){
-            ++ free_blocks;
-            free_words += Whsize_hd (cur_hd);
-            if (Whsize_hd (cur_hd) > largest_free){
-              largest_free = Whsize_hd (cur_hd);
-            }
-          }else{
-            ++ live_blocks;
-            live_words += Whsize_hd (cur_hd);
-#ifdef DEBUG
-            check_block (cur_hp);
-#endif
+      Assert (Next (cur_hp) <= chunk_end);
+      if (Is_freelist_hd (cur_hd)) {
+          Assert (Wosize_hd (cur_hd) > 0);
+          ++ free_blocks;
+          free_words += Whsize_hd (cur_hd);
+          if (Whsize_hd (cur_hd) > largest_free){
+            largest_free = Whsize_hd (cur_hd);
           }
-        }
-        break;
-      case Caml_gray: case Caml_black:
-        Assert (Wosize_hd (cur_hd) > 0);
-        ++ live_blocks;
-        live_words += Whsize_hd (cur_hd);
+      } else {
+        switch (Color_hd (cur_hd)){
+        case Caml_white:
+          if (Wosize_hd (cur_hd) == 0){
+            ++ fragments;
+            Assert (prev_hp == NULL
+                    || !Is_freelist_hd(Hd_hp(prev_hp)) 
+                    || cur_hp == caml_gc_sweep_hp);
+          }else{
+            if (caml_gc_phase == Phase_sweep && cur_hp >= caml_gc_sweep_hp){
+              ++ free_blocks;
+              free_words += Whsize_hd (cur_hd);
+              if (Whsize_hd (cur_hd) > largest_free){
+                largest_free = Whsize_hd (cur_hd);
+              }
+            }else{
+              ++ live_blocks;
+              live_words += Whsize_hd (cur_hd);
 #ifdef DEBUG
-        check_block (cur_hp);
+              check_block (cur_hp);
 #endif
-        break;
-      case Caml_blue:
-        Assert (Wosize_hd (cur_hd) > 0);
-        ++ free_blocks;
-        free_words += Whsize_hd (cur_hd);
-        if (Whsize_hd (cur_hd) > largest_free){
-          largest_free = Whsize_hd (cur_hd);
+            }
+          }
+          break;
+        case Caml_gray: case Caml_black:
+          Assert (Wosize_hd (cur_hd) > 0);
+          ++ live_blocks;
+          live_words += Whsize_hd (cur_hd);
+#ifdef DEBUG
+          check_block (cur_hp);
+#endif
+          break;
+          /*:
+          FIXME multicore: stats about upward ptrs
+          */
         }
-        /* not true any more with big heap chunks
-        Assert (prev_hp == NULL
-                || (Color_hp (prev_hp) != Caml_blue && Wosize_hp (prev_hp) > 0)
-                || cur_hp == caml_gc_sweep_hp);
-        Assert (Next (cur_hp) == chunk_end
-                || (Color_hp (Next (cur_hp)) != Caml_blue
-                    && Wosize_hp (Next (cur_hp)) > 0)
-                || (Whsize_hd (cur_hd) + Wosize_hp (Next (cur_hp)) > Max_wosize)
-                || Next (cur_hp) == caml_gc_sweep_hp);
-        */
-        break;
       }
 #ifdef DEBUG
       prev_hp = cur_hp;

@@ -90,7 +90,7 @@ void caml_darken (value v, value *p /* not used */)
       h = Hd_val (v);
       t = Tag_hd (h);
     }
-    CAMLassert (!Is_blue_hd (h));
+    CAMLassert (!Is_freelist_hd (h));
     if (Is_white_hd (h)){
       if (t < No_scan_tag){
         Hd_val (v) = Grayhd_hd (h);
@@ -140,6 +140,7 @@ static void mark_slice (intnat work)
           child = Field (v, i);
           if (Is_block (child) && Is_in_heap (child)) {
             hd = Hd_val (child);
+            Assert (!Is_freelist_hd(hd));
             if (Tag_hd (hd) == Forward_tag){
               value f = Forward_val (child);
               if (Is_block (f)
@@ -211,6 +212,7 @@ static void mark_slice (intnat work)
           weak_again:
             if (curfield != caml_weak_none
                 && Is_block (curfield) && Is_in_heap (curfield)){
+              Assert (!Is_freelist_hd (Hd_val (curfield)));
               if (Tag_val (curfield) == Forward_tag){
                 value f = Forward_val (curfield);
                 if (Is_block (f)) {
@@ -293,22 +295,18 @@ static void sweep_slice (intnat work)
       hd = Hd_hp (hp);
       work -= Whsize_hd (hd);
       caml_gc_sweep_hp += Bhsize_hd (hd);
-      switch (Color_hd (hd)){
-      case Caml_white:
+      if (Is_freelist_hd(hd)) {
+        caml_fl_merge = Bp_hp (hp);
+      } else if (Color_hd (hd) == Caml_white) {
         if (Tag_hd (hd) == Custom_tag){
           void (*final_fun)(value) = Custom_ops_val(Val_hp(hp))->finalize;
           if (final_fun != NULL) final_fun(Val_hp(hp));
         }
         caml_gc_sweep_hp = caml_fl_merge_block (Bp_hp (hp));
-        break;
-      case Caml_blue:
-        /* Only the blocks of the free-list are blue.  See [freelist.c]. */
-        caml_fl_merge = Bp_hp (hp);
-        break;
-      default:          /* gray or black */
+      } else {
+        /* gray or black */
         Assert (Color_hd (hd) == Caml_black);
         Hd_hp (hp) = Whitehd_hd (hd);
-        break;
       }
       Assert (caml_gc_sweep_hp <= limit);
     }else{
@@ -494,7 +492,7 @@ void caml_init_major_heap (asize_t heap_size)
 
   caml_fl_init_merge ();
   caml_make_free_blocks ((value *) caml_heap_start,
-                         Wsize_bsize (caml_stat_heap_size), 1, Caml_white);
+                         Wsize_bsize (caml_stat_heap_size), 1, 0);
   caml_gc_phase = Phase_idle;
   gray_vals_size = 2048;
   gray_vals = (value *) malloc (gray_vals_size * sizeof (value));

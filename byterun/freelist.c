@@ -43,7 +43,7 @@ static PER_CONTEXT struct {
   header_t h;
   value first_bp;
   value filler2; /* Make sure the sentinel is never adjacent to any block. */
-} sentinel = {0, Make_header (0, 0, Caml_blue), 0, 0};
+} sentinel = {0, Make_header (0, Freelist_tag, Caml_white), 0, 0};
 
 #define Fl_head ((char *) (&(sentinel.first_bp)))
 /* Current allocation pointer. */
@@ -142,7 +142,7 @@ static char *allocate_block (mlsize_t wh_sz, int flpi, char *prev, char *cur)
     }
   }else{                                                        /* Case 2. */
     caml_fl_cur_size -= wh_sz;
-    Hd_op (cur) = Make_header (Wosize_hd (h) - wh_sz, 0, Caml_blue);
+    Hd_op (cur) = Make_header (Wosize_hd (h) - wh_sz, Freelist_tag, Caml_white);
   }
   if (policy == Policy_next_fit) fl_prev = prev;
   return cur + Bosize_hd (h) - Bsize_wsize (wh_sz);
@@ -420,7 +420,7 @@ char *caml_fl_merge_block (char *bp)
     if (Wosize_hd (hd) + cur_whsz <= Max_wosize){
       Next (prev) = next_cur;
       if (policy == Policy_next_fit && fl_prev == cur) fl_prev = prev;
-      hd = Make_header (Wosize_hd (hd) + cur_whsz, 0, Caml_blue);
+      hd = Make_header (Wosize_hd (hd) + cur_whsz, Freelist_tag, Caml_white);
       Hd_bp (bp) = hd;
       adj = bp + Bosize_hd (hd);
 #ifdef DEBUG
@@ -436,13 +436,13 @@ char *caml_fl_merge_block (char *bp)
   prev_wosz = Wosize_bp (prev);
   if (prev + Bsize_wsize (prev_wosz) == Hp_bp (bp)
       && prev_wosz + Whsize_hd (hd) < Max_wosize){
-    Hd_bp (prev) = Make_header (prev_wosz + Whsize_hd (hd), 0,Caml_blue);
+    Hd_bp (prev) = Make_header (prev_wosz + Whsize_hd (hd), Freelist_tag, Caml_white);
 #ifdef DEBUG
     Hd_bp (bp) = Debug_free_major;
 #endif
     Assert (caml_fl_merge == prev);
   }else if (Wosize_hd (hd) != 0){
-    Hd_bp (bp) = Bluehd_hd (hd);
+    Hd_bp (bp) = Make_header(Wosize_hd (hd), Freelist_tag, Caml_white);
     Next (bp) = cur;
     Next (prev) = bp;
     caml_fl_merge = bp;
@@ -513,7 +513,7 @@ void caml_fl_add_blocks (char *bp)
           is overridden by the merge code, but we have historically used
           [Caml_white].
 */
-void caml_make_free_blocks (value *p, mlsize_t size, int do_merge, int color)
+void caml_make_free_blocks (value *p, mlsize_t size, int do_merge, tag_t tag)
 {
   mlsize_t sz;
 
@@ -523,7 +523,7 @@ void caml_make_free_blocks (value *p, mlsize_t size, int do_merge, int color)
     }else{
       sz = size;
     }
-    *(header_t *)p = Make_header (Wosize_whsize (sz), 0, color);
+    *(header_t *)p = Make_header (Wosize_whsize (sz), tag, Caml_white);
     if (do_merge) caml_fl_merge_block (Bp_hp (p));
     size -= sz;
     p += sz;

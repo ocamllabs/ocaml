@@ -246,13 +246,14 @@ void caml_free_for_heap (char *mem)
 }
 
 /* Take a chunk of memory as argument, which must be the result of a
-   call to [caml_alloc_for_heap], and insert it into the heap chaining.
-   The contents of the chunk must be a sequence of valid blocks and
-   fragments: no space between blocks and no trailing garbage.  If
-   some blocks are blue, they must be added to the free list by the
-   caller.  All other blocks must have the color [caml_allocation_color(m)].
-   The caller must update [caml_allocated_words] if applicable.
-   Return value: 0 if no error; -1 in case of error.
+   call to [caml_alloc_for_heap], and insert it into the heap
+   chaining.  The contents of the chunk must be a sequence of valid
+   blocks and fragments: no space between blocks and no trailing
+   garbage.  If some blocks are tagged with Freelist_tag, they must be
+   added to the free list by the caller.  All other blocks must have
+   the color [caml_allocation_color(m)].  The caller must update
+   [caml_allocated_words] if applicable.  Return value: 0 if no error;
+   -1 in case of error.
 
    See also: caml_compact_heap, which duplicates most of this function.
 */
@@ -293,8 +294,8 @@ int caml_add_to_heap (char *m)
 }
 
 /* Allocate more memory from malloc for the heap.
-   Return a blue block of at least the requested size.
-   The blue block is chained to a sequence of blue blocks (through their
+   Return a freelist block of at least the requested size.
+   The freelist block is chained to a sequence of freelist blocks (through their
    field 0); the last block of the chain is pointed by field 1 of the
    first.  There may be a fragment after the last block.
    The caller must insert the blocks into the free list.
@@ -318,7 +319,7 @@ static char *expand_heap (mlsize_t request)
   prev = hp = mem;
   /* FIXME find a way to do this with a call to caml_make_free_blocks */
   while (Wosize_bhsize (remain) > Max_wosize){
-    Hd_hp (hp) = Make_header (Max_wosize, 0, Caml_blue);
+    Hd_hp (hp) = Make_header (Max_wosize, Freelist_tag, Caml_white);
 #ifdef DEBUG
     caml_set_fields (Bp_hp (hp), 0, Debug_free_major);
 #endif
@@ -328,7 +329,7 @@ static char *expand_heap (mlsize_t request)
     prev = hp;
   }
   if (remain > 1){
-    Hd_hp (hp) = Make_header (Wosize_bhsize (remain), 0, Caml_blue);
+    Hd_hp (hp) = Make_header (Wosize_bhsize (remain), Freelist_tag, Caml_white);
 #ifdef DEBUG
     caml_set_fields (Bp_hp (hp), 0, Debug_free_major);
 #endif

@@ -163,7 +163,7 @@ static void do_compaction (void)
         header_t hd = Hd_hp (p);
         mlsize_t sz = Wosize_hd (hd);
 
-        if (Is_blue_hd (hd)){
+        if (Is_freelist_hd (hd)){
           /* Free object.  Give it a string tag. */
           Hd_hp (p) = Make_ehd (sz, String_tag, 3);
         }else{                                      Assert (Is_white_hd (hd));
@@ -307,7 +307,7 @@ static void do_compaction (void)
           */
           /* No pointers to the header and no infix header:
              the object was free. */
-          *p = Make_header (Wosize_ehd (q), Tag_ehd (q), Caml_blue);
+          *p = Make_header (Wosize_ehd (q), Freelist_tag, Caml_white);
           p += Whsize_ehd (q);
         }
       }
@@ -327,14 +327,14 @@ static void do_compaction (void)
       chend = ch + Chunk_size (ch);
       while ((char *) p < chend){
         word q = *p;
-        if (Color_hd (q) == Caml_white){
+        if (Is_freelist_hd (q)) {
+          p += Whsize_hd (q);
+        } else {
+          Assert (Color_hd (q) == Caml_white);
           size_t sz = Bhsize_hd (q);
           char *newadr = compact_allocate (sz);
           memmove (newadr, p, sz);
           p += Wsize_bsize (sz);
-        }else{
-          Assert (Color_hd (q) == Caml_blue);
-          p += Whsize_hd (q);
         }
       }
       ch = Chunk_next (ch);
@@ -383,7 +383,7 @@ static void do_compaction (void)
       if (Chunk_size (ch) > Chunk_alloc (ch)){
         caml_make_free_blocks ((value *) (ch + Chunk_alloc (ch)),
                                Wsize_bsize (Chunk_size(ch)-Chunk_alloc(ch)), 1,
-                               Caml_white);
+                               0);
       }
       ch = Chunk_next (ch);
     }
@@ -436,10 +436,10 @@ void caml_compact_heap (void)
 
     chunk = caml_alloc_for_heap (target_size);
     if (chunk == NULL) return;
-    /* PR#5757: we need to make the new blocks blue, or they won't be
+    /* PR#5757: we need to tag the new blocks with Freelist_tag, or they won't be
        recognized as free by the recompaction. */
     caml_make_free_blocks ((value *) chunk,
-                           Wsize_bsize (Chunk_size (chunk)), 0, Caml_blue);
+                           Wsize_bsize (Chunk_size (chunk)), 0, Freelist_tag);
     if (caml_page_table_add (In_heap, chunk, chunk + Chunk_size (chunk)) != 0){
       caml_free_for_heap (chunk);
       return;
