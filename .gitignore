@@ -2127,6 +2127,7 @@
 /asmrun/dynlink.c
 /asmrun/signals.c
 /asmrun/debugger.c
+/asmrun/forward_table.c
 /asmrun/.depend.nt
 /config/*.o
 /config/*.a

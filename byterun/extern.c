@@ -307,6 +307,7 @@ static void extern_rec(value v)
     tag_t tag = Tag_hd(hd);
     mlsize_t sz = Wosize_hd(hd);
     uintnat* output_location;
+    uintnat output_location_ignore_sharing;
 
     if (tag == Forward_tag) {
       value f = Forward_val (v);
@@ -329,8 +330,15 @@ static void extern_rec(value v)
       }
       goto next_item;
     }
+
     /* Check if already seen */
-    output_location = forward_table_insert_pos(&fwd_pointers, v);
+    if (!extern_ignore_sharing) {
+      output_location = forward_table_insert_pos(&fwd_pointers, v);
+    } else {
+      /* Pretend we've never seen it */
+      output_location_ignore_sharing = FORWARD_TABLE_NOT_PRESENT;
+      output_location = &output_location_ignore_sharing;
+    }
     if (*output_location != FORWARD_TABLE_NOT_PRESENT) {
       uintnat d = obj_counter - *output_location;
       if (d < 0x100) {

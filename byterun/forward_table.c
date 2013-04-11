@@ -3,7 +3,7 @@
 #include "memory.h"
 #include "forward_table.h"
 
-#define Is_power_of_2(x) (x & (x - 1) == 0)
+#define Is_power_of_2(x) ((x & (x - 1)) == 0)
 
 static const uintnat INVALID_KEY = Val_long(0);
 
@@ -85,9 +85,11 @@ uintnat* forward_table_insert_pos(struct forward_table* t, value v) {
   uintnat old_size = t->size;
   forward_table_alloc(t, old_size * 2);
   for (i = 0; i < old_size; i++) {
-    uintnat* p = forward_table_insert_pos(t, old_table[i].key);
-    Assert(*p == FORWARD_TABLE_NOT_PRESENT);
-    *p = old_table[i].value;
+    if (old_table[i].key != INVALID_KEY) {
+      uintnat* p = forward_table_insert_pos(t, old_table[i].key);
+      Assert(*p == FORWARD_TABLE_NOT_PRESENT);
+      *p = old_table[i].value;
+    }
   }
   free(old_table);
   return forward_table_insert_pos(t, v);
