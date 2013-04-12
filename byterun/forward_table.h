@@ -1,3 +1,5 @@
+#ifndef CAML_FORWARD_TABLE_H
+#define CAML_FORWARD_TABLE_H
 #include "mlvalues.h"
 
 struct forward_table_entry { uintnat key, value; };
@@ -18,3 +20,4 @@ uintnat* forward_table_insert_pos(struct forward_table* t, value v);
 
 
 void forward_table_clear(struct forward_table* t);
+#endif
