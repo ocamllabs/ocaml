@@ -65,7 +65,7 @@ static void check_head (value v)
   Assert (Is_in_heap (v));
   if (Tag_val (v) == Infix_tag){
     int offset = Wsize_bsize (Infix_offset_val (v));
-    value trueval = Val_op (&Field (v, -offset));
+    value trueval = v - Infix_offset_val(v);
     Assert (Tag_val (trueval) == Closure_tag);
     Assert (Wosize_val (trueval) > offset);
     Assert (Is_in_heap (&Field (trueval, Wosize_val (trueval) - 1)));

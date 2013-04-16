@@ -36,7 +36,6 @@ extern "C" {
           fields or some number of bytes (a multiple of the word size).
   field: A word-sized val which is part of a block.
   bp: Pointer to the first byte of a block.  (a char *)
-  op: Pointer to the first field of a block.  (a value *)
   hp: Pointer to the header of a block.  (a char *)
   int32: Four bytes on all architectures.
   int64: Eight bytes on all architectures.
@@ -98,15 +97,11 @@ bits  63    10 9     8 7   0
 #define Wosize_hd(hd) ((mlsize_t) ((hd) >> 10))
 
 #define Hd_val(val) (((header_t *) (val)) [-1])        /* Also an l-value. */
-#define Hd_op(op) (Hd_val (op))                        /* Also an l-value. */
 #define Hd_bp(bp) (Hd_val (bp))                        /* Also an l-value. */
 #define Hd_hp(hp) (* ((header_t *) (hp)))              /* Also an l-value. */
 #define Hp_val(val) ((char *) (((header_t *) (val)) - 1))
-#define Hp_op(op) (Hp_val (op))
 #define Hp_bp(bp) (Hp_val (bp))
-#define Val_op(op) ((value) (op))
 #define Val_hp(hp) ((value) (((header_t *) (hp)) + 1))
-#define Op_hp(hp) ((value *) Val_hp (hp))
 #define Bp_hp(hp) ((char *) Val_hp (hp))
 
 #define Num_tags (1 << 8)
@@ -117,7 +112,6 @@ bits  63    10 9     8 7   0
 #endif
 
 #define Wosize_val(val) (Wosize_hd (Hd_val (val)))
-#define Wosize_op(op) (Wosize_val (op))
 #define Wosize_bp(bp) (Wosize_val (bp))
 #define Wosize_hp(hp) (Wosize_hd (Hd_hp (hp)))
 #define Whsize_wosize(sz) ((sz) + 1)
@@ -128,7 +122,6 @@ bits  63    10 9     8 7   0
 #define Bhsize_wosize(sz) (Bsize_wsize (Whsize_wosize (sz)))
 #define Bhsize_bosize(sz) ((sz) + sizeof (header_t))
 #define Bosize_val(val) (Bsize_wsize (Wosize_val (val)))
-#define Bosize_op(op) (Bosize_val (Val_op (op)))
 #define Bosize_bp(bp) (Bosize_val (Val_bp (bp)))
 #define Bosize_hd(hd) (Bsize_wsize (Wosize_hd (hd)))
 #define Whsize_hp(hp) (Whsize_wosize (Wosize_hp (hp)))
@@ -156,8 +149,6 @@ bits  63    10 9     8 7   0
 
 /* 1- If tag < No_scan_tag : a tuple of fields.  */
 
-/* Pointer to the first field. */
-#define Op_val(x) ((value *) (x))
 /* Fields are numbered from 0. */
 #define Field(x, i) (((value *)(x)) [Assert(!Is_long((value)(x))),/*Assert(!Is_freelist_hd(Hd_val(x))),*/i])           /* Also an l-value. */
 

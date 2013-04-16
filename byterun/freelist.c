@@ -131,7 +131,7 @@ static char *allocate_block (mlsize_t wh_sz, int flpi, char *prev, char *cur)
       /* In case 1, the following creates the empty block correctly.
          In case 0, it gives an invalid header to the block.  The function
          calling [caml_fl_allocate] will overwrite it. */
-    Hd_op (cur) = Make_header (0, 0, Caml_white);
+    Hd_bp (cur) = Make_header (0, 0, Caml_white);
     if (policy == Policy_first_fit){
       if (flpi + 1 < flp_size && flp[flpi + 1] == cur){
         flp[flpi + 1] = prev;
@@ -142,7 +142,7 @@ static char *allocate_block (mlsize_t wh_sz, int flpi, char *prev, char *cur)
     }
   }else{                                                        /* Case 2. */
     caml_fl_cur_size -= wh_sz;
-    Hd_op (cur) = Make_header (Wosize_hd (h) - wh_sz, Freelist_tag, Caml_white);
+    Hd_bp (cur) = Make_header (Wosize_hd (h) - wh_sz, Freelist_tag, Caml_white);
   }
   if (policy == Policy_next_fit) fl_prev = prev;
   return cur + Bosize_hd (h) - Bsize_wsize (wh_sz);
