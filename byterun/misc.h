@@ -105,6 +105,7 @@ char *caml_aligned_malloc (asize_t, int, void **);
   04 -> fields deallocated by [caml_obj_truncate]
   10 -> uninitialised fields of minor objects
   11 -> uninitialised fields of major objects
+  12 -> uninitialised fields of global objects
   15 -> uninitialised words of [caml_aligned_malloc] blocks
   85 -> filler bytes of [caml_aligned_malloc]
 
@@ -117,6 +118,7 @@ char *caml_aligned_malloc (asize_t, int, void **);
 #define Debug_free_truncate  Debug_tag (0x04)
 #define Debug_uninit_minor   Debug_tag (0x10)
 #define Debug_uninit_major   Debug_tag (0x11)
+#define Debug_uninit_global  Debug_tag (0x12)
 #define Debug_uninit_align   Debug_tag (0x15)
 #define Debug_filler_align   Debug_tag (0x85)
 

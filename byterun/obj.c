@@ -24,6 +24,7 @@
 #include "misc.h"
 #include "mlvalues.h"
 #include "prims.h"
+#include "global_heap.h"
 
 CAMLprim value caml_static_alloc(value size)
 {
@@ -167,6 +168,20 @@ CAMLprim value caml_obj_add_offset (value v, value offset)
 {
   return v + (unsigned long) Int32_val (offset);
 }
+
+
+/*
+  Global heap manipulation
+*/
+
+CAMLprim value caml_obj_globalize(value val) {
+  return caml_globalize(val);
+}
+
+CAMLprim value caml_obj_canonicalize(value val) {
+  return Canonicalize(val);
+}
+
 
 /* The following functions are used in stdlib/lazy.ml.
    They are not written in OCaml because they must be atomic with respect

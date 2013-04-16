@@ -2128,6 +2128,7 @@
 /asmrun/signals.c
 /asmrun/debugger.c
 /asmrun/forward_table.c
+/asmrun/global_heap.c
 /asmrun/.depend.nt
 /config/*.o
 /config/*.a

@@ -14,7 +14,6 @@
 #ifndef CAML_GC_H
 #define CAML_GC_H
 
-
 #include "mlvalues.h"
 
 #define Caml_white  (0 << 8)
@@ -29,10 +28,12 @@
 #define Is_white_hd(hd) (Color_hd (hd) == Caml_white)
 #define Is_gray_hd(hd) (Color_hd (hd) == Caml_gray)
 #define Is_black_hd(hd) (Color_hd (hd) == Caml_black)
+#define Is_yellow_hd(hd) (Color_hd (hd) == Caml_yellow)
 
-#define Whitehd_hd(hd) (((hd)  & ~Caml_black)/*| Caml_white*/)
-#define Grayhd_hd(hd)  (((hd)  & ~Caml_black)  | Caml_gray)
-#define Blackhd_hd(hd) (((hd)/*& ~Caml_black*/)| Caml_black)
+#define Whitehd_hd(hd)  (((hd)  & ~Caml_black)/*| Caml_white*/)
+#define Grayhd_hd(hd)   (((hd)  & ~Caml_black)  | Caml_gray)
+#define Blackhd_hd(hd)  (((hd)/*& ~Caml_black*/)| Caml_black)
+#define Yellowhd_hd(hd) (((hd)  & ~Caml_black)  | Caml_yellow)
 
 /* This depends on the layout of the header.  See [mlvalues.h]. */
 #define Make_header(wosize, tag, color)                                       \
@@ -45,9 +46,6 @@
 #define Is_white_val(val) (Color_val(val) == Caml_white)
 #define Is_gray_val(val) (Color_val(val) == Caml_gray)
 #define Is_black_val(val) (Color_val(val) == Caml_black)
-
-/* For extern.c */
-#define Colornum_hd(hd) ((color_t) (((hd) >> 8) & 3))
-#define Coloredhd_hd(hd,colnum) (((hd) & ~Caml_black) | ((colnum) << 8))
+#define Is_yellow_val(val) (Color_val(val) == Caml_yellow)
 
 #endif /* CAML_GC_H */
