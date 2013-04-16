@@ -9,6 +9,12 @@ CAMLexport value caml_get_global_version(value val);
 
 CAMLexport value caml_globalize(value val);
 
+enum { 
+  /* There are no yellow objects in the minor heap */
+  FORWARD_RESET_MINOR
+};
+extern void caml_forward_ptr_reset(int invariant);
+
 #define Is_global_val(val) Is_yellow_hd (Hd_val (val))
 
 #define Canonicalize(val)                                           \

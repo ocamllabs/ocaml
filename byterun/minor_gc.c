@@ -255,6 +255,7 @@ void caml_empty_minor_heap (void)
     caml_in_minor_collection = 0;
   }
   caml_final_empty_young ();
+  caml_forward_ptr_reset(FORWARD_RESET_MINOR);
 #ifdef DEBUG
   {
     value *p;

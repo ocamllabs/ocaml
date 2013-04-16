@@ -7,7 +7,8 @@
 #include "global_heap.h"
 #include "misc.h"
 
-PER_CONTEXT struct forward_table fwd_table = FORWARD_TABLE_INIT;
+PER_CONTEXT struct forward_table fwd_table_major = FORWARD_TABLE_INIT;
+PER_CONTEXT struct forward_table fwd_table_minor = FORWARD_TABLE_INIT;
 
 CAMLexport value caml_alloc_global(mlsize_t wosize, tag_t tag) {
   printf("Allocating %d words of global heap\n", wosize);
@@ -29,7 +30,12 @@ CAMLexport value caml_get_global_version(value val) {
   Assert (Is_block(val));
   Assert (Is_in_value_area(val));
   Assert (Is_yellow_hd(Hd_val(val)));
-  value ret = (value)forward_table_lookup(&fwd_table, val);
+  value ret;
+  if (Is_young(val)) {
+    ret = (value)forward_table_lookup(&fwd_table_minor, val);
+  } else {
+    ret = (value)forward_table_lookup(&fwd_table_major, val);
+  }
   printf("%08llx -> %08llx\n", val, ret);
   return ret;
 }
@@ -57,7 +63,12 @@ CAMLexport value caml_globalize(value root) {
       /* just moved onto a new object, allocate a global copy */
       global = caml_alloc_global(Wosize_hd(hd), Tag_hd(hd));
       Hd_val(local) = Yellowhd_hd(hd);
-      uintnat* fwd = forward_table_insert_pos(&fwd_table, local);
+      uintnat* fwd;
+      if (Is_young(local)) {
+        fwd = forward_table_insert_pos(&fwd_table_minor, local);
+      } else {
+        fwd = forward_table_insert_pos(&fwd_table_major, local);
+      }
       Assert(*fwd == FORWARD_TABLE_NOT_PRESENT);
       *fwd = (uintnat)global;
     }
@@ -108,4 +119,14 @@ CAMLexport value caml_globalize(value root) {
 CAMLextern value caml_read_barrier(value x) {
   Assert (Is_block(x));
   return Canonicalize(x);
+}
+
+extern void caml_forward_ptr_reset(int invariant) {
+  switch (invariant) {
+  case FORWARD_RESET_MINOR:
+    printf("Clearing minor forward table\n");
+    forward_table_clear(&fwd_table_minor);
+    break;
+  default: Assert (0);
+  }
 }
