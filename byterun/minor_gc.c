@@ -25,6 +25,7 @@
 #include "roots.h"
 #include "signals.h"
 #include "weak.h"
+#include "global_heap.h"
 
 PER_CONTEXT asize_t caml_minor_heap_size;
 static PER_CONTEXT void *caml_young_base = NULL;
@@ -114,6 +115,7 @@ void caml_oldify_one (value v, value *p)
   tag_t tag;
 
  tail_call:
+  v = Canonicalize(v);
   if (Is_block (v) && Is_young (v)){
     Assert (Hp_val (v) >= caml_young_ptr);
     hd = Hd_val (v);
