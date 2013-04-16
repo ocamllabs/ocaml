@@ -27,6 +27,7 @@
 /* </private> */
 #include "misc.h"
 #include "mlvalues.h"
+#include "global_heap.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -128,8 +129,11 @@ int caml_page_table_initialize(mlsize_t bytesize);
    block being changed is in the minor heap or the major heap.
 */
 
-#define Modify(fp, val) do{                                                 \
-  value _old_ = *(fp);                                                      \
+#define Modify(fp, val) do{                                             \
+  if (!Is_in_value_area(fp) &&                              \
+      Is_block(val))                                                    \
+    val = caml_globalize(val);                                          \
+  value _old_ = *(fp);                                                  \
   *(fp) = (val);                                                            \
   if (Is_in_heap (fp)){                                                     \
     if (caml_gc_phase == Phase_mark) caml_darken (_old_, NULL);             \

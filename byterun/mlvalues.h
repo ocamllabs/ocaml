@@ -150,7 +150,13 @@ bits  63    10 9     8 7   0
 /* 1- If tag < No_scan_tag : a tuple of fields.  */
 
 /* Fields are numbered from 0. */
-#define Field(x, i) (((value *)(x)) [Assert(!Is_long((value)(x))),/*Assert(!Is_freelist_hd(Hd_val(x))),*/i])           /* Also an l-value. */
+/* Field_ is a slightly faster version of Field which can be used only when various subtle invariants hold */
+#define Field_(x, i) (((value *)(x)) [Assert(!Is_long((value)(x))),/*Assert(!Is_freelist_hd(Hd_val(x))),*/i])           /* Also an l-value. */
+
+CAMLextern value caml_read_barrier(value); /* found in global_heap.c */
+#define Field(x, i) Field_(caml_read_barrier((value)(x)), i)
+
+
 
 typedef int32 opcode_t;
 typedef opcode_t * code_t;

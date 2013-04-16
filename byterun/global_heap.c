@@ -18,7 +18,7 @@ CAMLexport value caml_alloc_global(mlsize_t wosize, tag_t tag) {
   {
     uintnat i;
     for (i = 0; i < wosize; i++) {
-      Field (Val_hp (obj), i) = Debug_uninit_global;
+      Field_ (Val_hp (obj), i) = Debug_uninit_global;
     }
   }
 #endif
@@ -29,7 +29,9 @@ CAMLexport value caml_get_global_version(value val) {
   Assert (Is_block(val));
   Assert (Is_in_value_area(val));
   Assert (Is_yellow_hd(Hd_val(val)));
-  return (value)forward_table_lookup(&fwd_table, val);
+  value ret = (value)forward_table_lookup(&fwd_table, val);
+  printf("%08llx -> %08llx\n", val, ret);
+  return ret;
 }
 
 CAMLexport value caml_globalize(value root) {
@@ -46,8 +48,10 @@ CAMLexport value caml_globalize(value root) {
   uintnat field = 0;
 
   while (1) {
+    /* It is important that we use Field_, not Field, since we are
+       now setting up the global version of the object */
     header_t hd = Hd_val(local);
-    printf("globalizing %x %d/%d\n", local, field, Wosize_hd(hd));
+    printf("globalizing %llx %d/%d\n", local, field, Wosize_hd(hd));
 
     if (field == 0) {
       /* just moved onto a new object, allocate a global copy */
@@ -63,20 +67,20 @@ CAMLexport value caml_globalize(value root) {
 
     if (field < Wosize_hd(hd)) {
       /* still copying fields of current object */
-      value curr = Field(local, field);
+      value curr = Field_(local, field);
       if (!Is_block(curr) || !Is_in_value_area(curr)) {
         /* doesn't need to be copied to global heap */
-        Field(global, field) = curr;
+        Field_(global, field) = curr;
         field++;
       } else if (Is_yellow_hd (Hd_val (curr))) {
         /* has already been copied to global heap */
-        Field(global, field) = caml_get_global_version(curr);
+        Field_(global, field) = caml_get_global_version(curr);
         field++;
       } else {
         /* need to deep-copy this field, push it to the stack */
         Hd_val(global) = (header_t)stack;
-        Field(global, field) = local;
-        stack = &Field(global, field);
+        Field_(global, field) = local;
+        stack = &Field_(global, field);
         /* move onto child object */
         local = curr;
         field = 0;
@@ -89,7 +93,7 @@ CAMLexport value caml_globalize(value root) {
         local = *stack;
         *stack = global;
         global = caml_get_global_version(local);
-        field = (uintnat)(stack - &Field(global, 0));
+        field = (uintnat)(stack - &Field_(global, 0));
         Assert(0 <= field && field <= Wosize_val(local));
         stack = (value*)Hd_val(global);
         field++;
@@ -99,4 +103,9 @@ CAMLexport value caml_globalize(value root) {
       }
     }
   }
+}
+
+CAMLextern value caml_read_barrier(value x) {
+  Assert (Is_block(x));
+  return Canonicalize(x);
 }
