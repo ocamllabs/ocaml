@@ -29,6 +29,7 @@
 #include "prims.h"
 #include "signals.h"
 #include "stacks.h"
+#include "context.h"
 
 /* Registers for the abstract machine:
         pc         the code pointer
@@ -850,6 +851,7 @@ value caml_interprete(code_t prog, asize_t prog_size)
 /* Signal handling */
 
     Instruct(CHECK_SIGNALS):    /* accu not preserved */
+      caml_message_poll();
       if (caml_something_to_do) goto process_signal;
       Next;
 

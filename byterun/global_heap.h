@@ -1,6 +1,7 @@
 #ifndef CAML_GLOBAL_HEAP_H
 #define CAML_GLOBAL_HEAP_H
 #include "mlvalues.h"
+#include "gc.h"
 
 
 CAMLexport value caml_alloc_global(mlsize_t wosize, tag_t tag);
@@ -15,7 +16,7 @@ enum {
 };
 extern void caml_forward_ptr_reset(int invariant);
 
-#define Is_global_val(val) Is_yellow_hd (Hd_val (val))
+#define Is_global_val(val) (!Is_in_value_area(val) || Is_yellow_hd (Hd_val (val)))
 
 #define Canonicalize(val)                                           \
   ( (Is_block(val) && Is_in_value_area(val) && Is_global_val(val))        \

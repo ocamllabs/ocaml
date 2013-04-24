@@ -11,7 +11,7 @@ PER_CONTEXT struct forward_table fwd_table_major = FORWARD_TABLE_INIT;
 PER_CONTEXT struct forward_table fwd_table_minor = FORWARD_TABLE_INIT;
 
 CAMLexport value caml_alloc_global(mlsize_t wosize, tag_t tag) {
-  printf("Allocating %d words of global heap\n", wosize);
+  fprintf(stderr, "Allocating %d words of global heap\n", wosize);
   void* obj = malloc(Bhsize_wosize(wosize));
   Assert (!Is_in_value_area(Val_hp(obj)));
   Hd_hp(obj) = Make_header(wosize, tag, Caml_black);
@@ -36,12 +36,12 @@ CAMLexport value caml_get_global_version(value val) {
   } else {
     ret = (value)forward_table_lookup(&fwd_table_major, val);
   }
-  printf("%08llx -> %08llx\n", val, ret);
+  fprintf(stderr, "%08llx -> %08llx\n", val, ret);
   return ret;
 }
 
 CAMLexport value caml_globalize(value root) {
-  printf("glob %d %d %d\n", Is_block(root), Is_in_value_area(root), Is_yellow_hd(Hd_val(root)));
+  fprintf(stderr, "glob %d %d %d\n", Is_block(root), Is_in_value_area(root), Is_yellow_hd(Hd_val(root)));
   if (!Is_block(root)) 
     return root;
   if (!Is_in_value_area(root))
@@ -57,7 +57,7 @@ CAMLexport value caml_globalize(value root) {
     /* It is important that we use Field_, not Field, since we are
        now setting up the global version of the object */
     header_t hd = Hd_val(local);
-    printf("globalizing %llx %d/%d\n", local, field, Wosize_hd(hd));
+    fprintf(stderr, "globalizing %llx %d/%d\n", local, field, Wosize_hd(hd));
 
     if (field == 0) {
       /* just moved onto a new object, allocate a global copy */
@@ -124,7 +124,7 @@ CAMLextern value caml_read_barrier(value x) {
 extern void caml_forward_ptr_reset(int invariant) {
   switch (invariant) {
   case FORWARD_RESET_MINOR:
-    printf("Clearing minor forward table\n");
+    fprintf(stderr, "Clearing minor forward table\n");
     forward_table_clear(&fwd_table_minor);
     break;
   default: Assert (0);

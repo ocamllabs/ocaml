@@ -52,6 +52,8 @@
 #include "sys.h"
 #include "startup.h"
 #include "version.h"
+#include "global_heap.h"
+#include "context.h"
 
 #ifndef O_BINARY
 #define O_BINARY 0
@@ -348,6 +350,13 @@ extern void caml_install_invalid_parameter_handler();
 
 #endif
 
+void caml_init_vm() {
+  /* Initialize the abstract machine */
+  caml_init_gc (minor_heap_init, heap_size_init, heap_chunk_init,
+                percent_free_init, max_percent_free_init);
+  caml_init_stack (max_stack_init);
+}
+
 /* Main entry point when loading code from a file */
 
 CAMLexport void caml_main(char **argv)
@@ -377,6 +386,7 @@ CAMLexport void caml_main(char **argv)
   caml_verb_gc = 0xBF;
 #endif
   parse_camlrunparam();
+  caml_init_main_context();
   pos = 0;
   exe_name = argv[0];
 #ifdef __linux__
@@ -403,11 +413,9 @@ CAMLexport void caml_main(char **argv)
   }
   /* Read the table of contents (section descriptors) */
   caml_read_section_descriptors(fd, &trail);
-  /* Initialize the abstract machine */
-  caml_init_gc (minor_heap_init, heap_size_init, heap_chunk_init,
-                percent_free_init, max_percent_free_init);
-  caml_init_stack (max_stack_init);
   init_atoms();
+  caml_init_vm();
+  caml_setup_main_context();
   /* Initialize the interpreter */
   caml_interprete(NULL, 0);
   /* Initialize the debugger, if needed */
@@ -486,17 +494,16 @@ CAMLexport void caml_startup_code(
     strcpy(caml_cds_file, cds_file);
   }
   parse_camlrunparam();
+  caml_init_main_context();
   exe_name = argv[0];
 #ifdef __linux__
   if (caml_executable_name(proc_self_exe, sizeof(proc_self_exe)) == 0)
     exe_name = proc_self_exe;
 #endif
   caml_external_raise = NULL;
-  /* Initialize the abstract machine */
-  caml_init_gc (minor_heap_init, heap_size_init, heap_chunk_init,
-                percent_free_init, max_percent_free_init);
-  caml_init_stack (max_stack_init);
   init_atoms();
+  caml_init_vm();
+  caml_setup_main_context();
   /* Initialize the interpreter */
   caml_interprete(NULL, 0);
   /* Initialize the debugger, if needed */
@@ -540,4 +547,10 @@ CAMLexport void caml_startup_code(
     }
     caml_fatal_uncaught_exception(caml_exn_bucket);
   }
+}
+
+void caml_run_context(value callback) {
+  caml_init_vm();
+  Assert (Is_global_val(callback));
+  caml_callback_exn(callback, Val_unit);
 }

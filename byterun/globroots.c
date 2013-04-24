@@ -18,6 +18,7 @@
 #include "mlvalues.h"
 #include "roots.h"
 #include "globroots.h"
+#include "context.h"
 
 /* The sets of global memory roots are represented as skip lists
    (see William Pugh, "Skip lists: a probabilistic alternative to
@@ -70,6 +71,7 @@ static void caml_insert_global_root(struct global_root_list * rootlist,
   struct global_root * e, * f;
   int i, new_level;
 
+  caml_stop_the_world();
   /* Init "cursor" to list head */
   e = (struct global_root *) rootlist;
   /* Find place to insert new node */
@@ -98,6 +100,7 @@ static void caml_insert_global_root(struct global_root_list * rootlist,
     e->forward[i] = update[i]->forward[i];
     update[i]->forward[i] = e;
   }
+  caml_resume_the_world();
 }
 
 /* Deletion in a global root list */
@@ -109,6 +112,7 @@ static void caml_delete_global_root(struct global_root_list * rootlist,
   struct global_root * e, * f;
   int i;
 
+  caml_stop_the_world();
   /* Init "cursor" to list head */
   e = (struct global_root *) rootlist;
   /* Find element in list */
@@ -134,6 +138,7 @@ static void caml_delete_global_root(struct global_root_list * rootlist,
   while (rootlist->level > 0 &&
          rootlist->forward[rootlist->level] == NULL)
     rootlist->level--;
+  caml_resume_the_world();
 }
 
 /* Iterate over a global root list */
@@ -154,7 +159,7 @@ static void caml_empty_global_roots(struct global_root_list * rootlist)
 {
   struct global_root * gr, * next;
   int i;
-
+  caml_stop_the_world();
   for (gr = rootlist->forward[0]; gr != NULL; /**/) {
     next = gr->forward[0];
     caml_stat_free(gr);
@@ -162,6 +167,7 @@ static void caml_empty_global_roots(struct global_root_list * rootlist)
   }
   for (i = 0; i <= rootlist->level; i++) rootlist->forward[i] = NULL;
   rootlist->level = 0;
+  caml_resume_the_world();
 }
 
 /* The three global root lists */

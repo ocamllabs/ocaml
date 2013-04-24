@@ -20,6 +20,7 @@
 extern int caml_parser_trace;
 extern char * caml_exe_name;
 extern char ** caml_main_argv;
+extern int caml_trace_flag;
 
 #ifndef NATIVE_CODE
 extern char * caml_section_table;
@@ -34,6 +35,8 @@ CAMLextern void caml_startup_code(
            char *data, asize_t data_size,
            char *section_table, asize_t section_table_size,
            char **argv);
+
+void caml_run_context(value callback);
 
 enum { FILE_NOT_FOUND = -1, BAD_BYTECODE  = -2 };
 

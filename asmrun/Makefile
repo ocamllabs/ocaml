@@ -25,7 +25,7 @@ COBJS=startup.o main.o fail.o roots.o globroots.o signals.o signals_asm.o \
   floats.o str.o array.o io.o extern.o intern.o hash.o sys.o parsing.o \
   gc_ctrl.o terminfo.o md5.o obj.o lexing.o printexc.o callback.o weak.o \
   compact.o finalise.o custom.o unix.o backtrace.o natdynlink.o debugger.o \
-  meta.o dynlink.o forward_table.o global_heap.o
+  meta.o dynlink.o forward_table.o global_heap.o context.o
 
 ASMOBJS=$(ARCH).o
 
@@ -161,13 +161,14 @@ forward_table.c: ../byterun/forward_table.c
 	ln -s ../byterun/forward_table.c forward_table.c
 global_heap.c: ../byterun/global_heap.c
 	ln -s ../byterun/global_heap.c global_heap.c
-
+context.c: ../byterun/context.c
+	ln -s ../byterun/context.c context.c
 
 LINKEDFILES=misc.c freelist.c major_gc.c minor_gc.c memory.c alloc.c array.c \
   compare.c ints.c floats.c str.c io.c extern.c intern.c hash.c sys.c \
   parsing.c gc_ctrl.c terminfo.c md5.c obj.c lexing.c printexc.c callback.c \
   weak.c compact.c finalise.c meta.c custom.c main.c globroots.c unix.c \
-  dynlink.c signals.c debugger.c forward_table.c global_heap.c
+  dynlink.c signals.c debugger.c forward_table.c global_heap.c context.c
 
 clean::
 	rm -f $(LINKEDFILES)
