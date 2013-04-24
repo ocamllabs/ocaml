@@ -101,7 +101,7 @@ void caml_change_max_stack_size (uintnat new_max_size)
   caml_max_stack_size = new_max_size;
 }
 
-CAMLexport uintnat (*caml_stack_usage_hook)(void) = NULL;
+CAMLexport PER_CONTEXT uintnat (*caml_stack_usage_hook)(void) = NULL;
 
 uintnat caml_stack_usage(void)
 {

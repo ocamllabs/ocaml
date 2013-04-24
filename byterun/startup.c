@@ -64,6 +64,8 @@
 int caml_parser_trace;
 char * caml_exe_name;
 char ** caml_main_argv;
+int caml_trace_flag = 0;
+
 
 char * caml_section_table = NULL;
 asize_t caml_section_table_size;

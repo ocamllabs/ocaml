@@ -357,7 +357,7 @@ void caml_do_local_roots(scanning_action f, char * bottom_of_stack,
   }
 }
 
-uintnat (*caml_stack_usage_hook)(void) = NULL;
+PER_CONTEXT uintnat (*caml_stack_usage_hook)(void) = NULL;
 
 uintnat caml_stack_usage (void)
 {

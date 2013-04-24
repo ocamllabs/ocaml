@@ -25,14 +25,13 @@
 #include "opnames.h"
 #include "prims.h"
 #include "stacks.h"
+#include "startup.h"
 
 extern code_t caml_start_code;
 
-intnat caml_icount = 0;
+PER_CONTEXT intnat caml_icount = 0;
 
 void caml_stop_here () {}
-
-int caml_trace_flag = 0;
 
 void caml_disasm_instr(pc)
      code_t pc;
