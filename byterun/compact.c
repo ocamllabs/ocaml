@@ -89,7 +89,7 @@ static void invert_pointer_at (word *p)
         }else{                            Assert (Tag_ehd (*hp) == Infix_tag);
           /* Point the last of this infix list to the current first infix
              list of the block. */
-          *p = (word) &Field (val, Wosize_ehd (*hp)) | 1;
+          *p = (word) &Field_ (val, Wosize_ehd (*hp)) | 1;
           /* Point the head of this infix list to the above. */
           Hd_val (q) = (header_t) ((word) p | 2);
           /* Change block header's size to point to this infix list. */
@@ -232,12 +232,12 @@ static void do_compaction (void)
         while (Ecolor (q) == 0) q = * (word *) q;
         sz = Wosize_ehd (q);
         for (i = 1; i < sz; i++){
-          if (Field (p,i) != caml_weak_none){
-            invert_pointer_at ((word *) &(Field (p,i)));
+          if (Field_ (p,i) != caml_weak_none){
+            invert_pointer_at ((word *) &(Field_ (p,i)));
           }
         }
         invert_pointer_at ((word *) pp);
-        pp = &Field (p, 0);
+        pp = &Field_ (p, 0);
       }
     }
   }
