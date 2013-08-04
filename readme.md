@@ -9,6 +9,7 @@ This repository contains various extensions to and experiments with the OCaml co
 * trunk: The OCaml compiler trunk
 * open_types: Adds open types to OCaml
 * 4.00+open_types: Add open types to the 4.00 release branch of OCaml
+* yacc-force: Add a "force" feature to OCamlYacc to support the "lexer hack"
 
 ### Tags
 
