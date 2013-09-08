@@ -166,7 +166,7 @@ module Variance = struct
   let conjugate v = swap May_pos May_neg (swap Pos Neg v)
   let get_upper v = (mem May_pos v, mem May_neg v)
   let get_lower v = (mem Pos v, mem Neg v, mem Inv v, mem Inj v)
-end 
+end
 
 (* Type definitions *)
 
@@ -202,7 +202,7 @@ module Concr = Set.Make(OrderedString)
 type class_type =
     Cty_constr of Path.t * type_expr list * class_type
   | Cty_signature of class_signature
-  | Cty_fun of label * type_expr * class_type
+  | Cty_arrow of label * type_expr * class_type
 
 and class_signature =
   { cty_self: type_expr;

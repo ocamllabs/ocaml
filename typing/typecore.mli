@@ -20,14 +20,14 @@ val is_nonexpansive: Typedtree.expression -> bool
 
 val type_binding:
         Env.t -> rec_flag ->
-          (Parsetree.pattern * Parsetree.expression) list ->
+          Parsetree.value_binding list ->
           Annot.ident option ->
-          (Typedtree.pattern * Typedtree.expression) list * Env.t
+          Typedtree.value_binding list * Env.t
 val type_let:
         Env.t -> rec_flag ->
-          (Parsetree.pattern * Parsetree.expression) list ->
+          Parsetree.value_binding list ->
           Annot.ident option ->
-          (Typedtree.pattern * Typedtree.expression) list * Env.t
+          Typedtree.value_binding list * Env.t
 val type_expression:
         Env.t -> Parsetree.expression -> Typedtree.expression
 val type_class_arg_pattern:
@@ -76,7 +76,7 @@ type error =
   | Label_missing of Ident.t list
   | Label_not_mutable of Longident.t
   | Wrong_name of string * Path.t * Longident.t
-  | Name_type_mismatch of 
+  | Name_type_mismatch of
       string * Longident.t * (Path.t * Path.t) * (Path.t * Path.t) list
   | Incomplete_format of string
   | Bad_conversion of string * int * char
@@ -105,6 +105,8 @@ type error =
   | Recursive_local_constraint of (type_expr * type_expr) list
   | Unexpected_existential
   | Unqualified_gadt_pattern of Path.t * string
+  | Invalid_interval
+  | Extension of string
 
 exception Error of Location.t * Env.t * error
 
@@ -113,7 +115,9 @@ val report_error: Env.t -> formatter -> error -> unit
 (* Forward declaration, to be filled in by Typemod.type_module *)
 val type_module: (Env.t -> Parsetree.module_expr -> Typedtree.module_expr) ref
 (* Forward declaration, to be filled in by Typemod.type_open *)
-val type_open: (override_flag -> Env.t -> Location.t -> Longident.t loc -> Path.t * Env.t) ref
+val type_open:
+    (override_flag -> Env.t -> Location.t -> Longident.t loc -> Path.t * Env.t)
+    ref
 (* Forward declaration, to be filled in by Typeclass.class_structure *)
 val type_object:
   (Env.t -> Location.t -> Parsetree.class_structure ->

@@ -65,6 +65,7 @@ module Options = Main_args.Make_bytetop_options (struct
     let dir = Misc.expand_directory Config.standard_library dir in
     include_dirs := dir :: !include_dirs
   let _init s = init_file := Some s
+  let _noinit = set noinit
   let _labels = clear classic
   let _no_app_funct = clear applicative_functors
   let _noassert = set noassert
@@ -74,8 +75,8 @@ module Options = Main_args.Make_bytetop_options (struct
   let _nostdlib = set no_std_include
   let _ppx s = first_ppx := s :: !first_ppx
   let _principal = set principal
-  let _short_paths = clear real_paths
   let _rectypes = set recursive_types
+  let _short_paths = clear real_paths
   let _stdin () = file_argument ""
   let _strict_sequence = set strict_sequence
   let _unsafe = set fast

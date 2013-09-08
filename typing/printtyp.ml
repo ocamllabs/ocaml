@@ -938,7 +938,7 @@ let rec prepare_class_type params = function
       in
       List.iter (fun met -> mark_loops (fst (method_type met))) fields;
       Vars.iter (fun _ (_, _, ty) -> mark_loops ty) sign.cty_vars
-  | Cty_fun (_, ty, cty) ->
+  | Cty_arrow (_, ty, cty) ->
       mark_loops ty;
       prepare_class_type params cty
 
@@ -984,7 +984,7 @@ let rec tree_of_class_type sch params =
         List.fold_left (tree_of_metho sch sign.cty_concr) csil fields
       in
       Octy_signature (self_ty, List.rev csil)
-  | Cty_fun (l, ty, cty) ->
+  | Cty_arrow (l, ty, cty) ->
       let lab = if !print_labels && l <> "" || is_optional l then l else "" in
       let ty =
        if is_optional l then
@@ -993,7 +993,7 @@ let rec tree_of_class_type sch params =
          | _ -> newconstr (Path.Pident(Ident.create "<hidden>")) []
        else ty in
       let tr = tree_of_typexp sch ty in
-      Octy_fun (lab, tr, tree_of_class_type sch params cty)
+      Octy_arrow (lab, tr, tree_of_class_type sch params cty)
 
 let class_type ppf cty =
   reset ();
@@ -1222,7 +1222,7 @@ let rec filter_trace keep_last = function
 
 let rec type_path_list ppf = function
   | [tp, tp'] -> type_path_expansion tp ppf tp'
-  | (tp, tp') :: rem -> 
+  | (tp, tp') :: rem ->
       fprintf ppf "%a@;<2 0>%a"
         (type_path_expansion tp) tp'
         type_path_list rem
@@ -1427,12 +1427,12 @@ let report_subtyping_error ppf env tr1 txt1 tr2 =
 let report_ambiguous_type_error ppf env (tp0, tp0') tpl txt1 txt2 txt3 =
   wrap_printing_env env (fun () ->
     reset ();
-    List.iter 
-      (fun (tp, tp') -> path_same_name tp0 tp; path_same_name tp0' tp') 
+    List.iter
+      (fun (tp, tp') -> path_same_name tp0 tp; path_same_name tp0' tp')
       tpl;
     match tpl with
       [] -> assert false
-    | [tp, tp'] ->       
+    | [tp, tp'] ->
         fprintf ppf
           "@[%t@;<1 2>%a@ \
              %t@;<1 2>%a\

@@ -23,16 +23,26 @@ let bind_variables scope =
       super # pattern pat;
       match pat.pat_desc with
       | Tpat_var (id, _) | Tpat_alias (_, id, _) ->
-          Stypes.record (Stypes.An_ident (pat.pat_loc, Ident.name id, Annot.Idef scope))
+          Stypes.record (Stypes.An_ident (pat.pat_loc,
+                                          Ident.name id,
+                                          Annot.Idef scope))
       | _ -> ()
   end
 
 let bind_bindings scope bindings =
   let o = bind_variables scope in
-  List.iter (fun (p, _) -> o # pattern p) bindings
+  List.iter (fun x -> o # pattern x.vb_pat) bindings
 
 let bind_cases l =
-  List.iter (fun (p, e) -> (bind_variables e.exp_loc) # pattern p) l
+  List.iter
+    (fun {c_lhs; c_guard; c_rhs} ->
+      let loc =
+        let open Location in
+        match c_guard with
+        | None -> c_rhs.exp_loc
+        | Some g -> {c_rhs.exp_loc with loc_start=g.exp_loc.loc_start}
+      in
+      (bind_variables loc) # pattern c_lhs) l
 
 let iterator rebuild_env =
   object(this)
@@ -96,7 +106,6 @@ let iterator rebuild_env =
           let open Location in
           let doit loc_start = bind_bindings {scope with loc_start} bindings in
           begin match rec_flag, rem with
-          | Default, _ -> ()
           | Recursive, _ -> doit loc.loc_start
           | Nonrecursive, [] -> doit loc.loc_end
           | Nonrecursive,  {str_loc = loc2} :: _ -> doit loc2.loc_start
@@ -136,7 +145,8 @@ let binary_part iter x =
   | Partial_signature_item x -> iter # signature_item x
   | Partial_module_type x -> iter # module_type x
 
-let gen_annot target_filename filename {Cmt_format.cmt_loadpath; cmt_annots; cmt_use_summaries; _} =
+let gen_annot target_filename filename
+              {Cmt_format.cmt_loadpath; cmt_annots; cmt_use_summaries; _} =
   let open Cmt_format in
   Envaux.reset_cache ();
   Config.load_path := cmt_loadpath;
@@ -152,7 +162,7 @@ let gen_annot target_filename filename {Cmt_format.cmt_loadpath; cmt_annots; cmt
       iterator # structure typedtree;
       Stypes.dump target_filename
   | Interface _ ->
-      Printf.fprintf stderr "Cannot generate annotations for interface file\n%!";
+      Printf.eprintf "Cannot generate annotations for interface file\n%!";
       exit 2
   | Partial_implementation parts ->
       Array.iter (binary_part iterator) parts;

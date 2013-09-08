@@ -20,8 +20,8 @@ module type Bytecomp_options =
     val _cc : string -> unit
     val _cclib : string -> unit
     val _ccopt : string -> unit
-    val _config : unit -> unit
     val _compat_32 : unit -> unit
+    val _config : unit -> unit
     val _custom : unit -> unit
     val _dllib : string -> unit
     val _dllpath : string -> unit
@@ -45,9 +45,9 @@ module type Bytecomp_options =
     val _pp : string -> unit
     val _ppx : string -> unit
     val _principal : unit -> unit
-    val _short_paths : unit -> unit
     val _rectypes : unit -> unit
     val _runtime_variant : string -> unit
+    val _short_paths : unit -> unit
     val _strict_sequence : unit -> unit
     val _thread : unit -> unit
     val _vmthread : unit -> unit
@@ -82,14 +82,15 @@ module type Bytetop_options = sig
   val _labels : unit -> unit
   val _no_app_funct : unit -> unit
   val _noassert : unit -> unit
+  val _noinit : unit -> unit
   val _nolabels : unit -> unit
   val _noprompt : unit -> unit
   val _nopromptcont : unit -> unit
   val _nostdlib : unit -> unit
   val _ppx : string -> unit
   val _principal : unit -> unit
-  val _short_paths : unit -> unit
   val _rectypes : unit -> unit
+  val _short_paths : unit -> unit
   val _stdin : unit -> unit
   val _strict_sequence : unit -> unit
   val _unsafe : unit -> unit
@@ -143,18 +144,18 @@ module type Optcomp_options = sig
   val _pp : string -> unit
   val _ppx : string -> unit
   val _principal : unit -> unit
-  val _short_paths : unit -> unit
   val _rectypes : unit -> unit
   val _runtime_variant : string -> unit
   val _S : unit -> unit
-  val _strict_sequence : unit -> unit
   val _shared : unit -> unit
+  val _short_paths : unit -> unit
+  val _strict_sequence : unit -> unit
   val _thread : unit -> unit
   val _unsafe : unit -> unit
   val _v : unit -> unit
+  val _verbose : unit -> unit
   val _version : unit -> unit
   val _vnum : unit -> unit
-  val _verbose : unit -> unit
   val _w : string -> unit
   val _warn_error : string -> unit
   val _warn_help : unit -> unit
@@ -193,15 +194,16 @@ module type Opttop_options = sig
   val _labels : unit -> unit
   val _no_app_funct : unit -> unit
   val _noassert : unit -> unit
+  val _noinit : unit -> unit
   val _nolabels : unit -> unit
   val _noprompt : unit -> unit
   val _nopromptcont : unit -> unit
   val _nostdlib : unit -> unit
   val _ppx : string -> unit
   val _principal : unit -> unit
-  val _short_paths : unit -> unit
   val _rectypes : unit -> unit
   val _S : unit -> unit
+  val _short_paths : unit -> unit
   val _stdin : unit -> unit
   val _strict_sequence : unit -> unit
   val _unsafe : unit -> unit

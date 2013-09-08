@@ -40,7 +40,9 @@ let need_symbol sym =
   with _ -> true
 
 let dll_run dll entry =
-  match (try Result (Obj.magic (ndl_run_toplevel dll entry)) with exn -> Exception exn) with
+  match (try Result (Obj.magic (ndl_run_toplevel dll entry))
+         with exn -> Exception exn)
+  with
     | Exception _ as r -> r
     | Result r ->
         match Obj.magic r with
@@ -387,7 +389,8 @@ let _ =
   ()
 
 let load_ocamlinit ppf =
-  match !Clflags.init_file with
+  if !Clflags.noinit then ()
+  else match !Clflags.init_file with
   | Some f -> if Sys.file_exists f then ignore (use_silently ppf f)
               else fprintf ppf "Init file not found: \"%s\".@." f
   | None ->

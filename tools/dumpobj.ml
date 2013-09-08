@@ -82,7 +82,7 @@ let print_float f =
 let rec print_struct_const = function
     Const_base(Const_int i) -> printf "%d" i
   | Const_base(Const_float f) -> print_float f
-  | Const_base(Const_string s) -> printf "%S" s
+  | Const_base(Const_string (s, _)) -> printf "%S" s
   | Const_immstring s -> printf "%S" s
   | Const_base(Const_char c) -> printf "%C" c
   | Const_base(Const_int32 i) -> printf "%ldl" i
@@ -541,7 +541,9 @@ let dump_exe ic =
 let arg_list = [
   "-noloc", Arg.Clear print_locations, " : don't print source information";
 ]
-let arg_usage = Printf.sprintf "%s [OPTIONS] FILES : dump content of bytecode files" Sys.argv.(0)
+let arg_usage =
+  Printf.sprintf "%s [OPTIONS] FILES : dump content of bytecode files"
+                 Sys.argv.(0)
 
 let first_file = ref true
 
