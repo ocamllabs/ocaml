@@ -195,20 +195,36 @@ type unification_mode =
 
 let umode = ref Expression
 let generate_equations = ref false
+let assume_injective = ref false
 
-let set_mode mode ?(generate = (mode = Pattern)) f =
-  let old_unification_mode = !umode
-  and old_gen = !generate_equations in
+let set_mode_expression f =
+  let old_unification_mode = !umode in
   try
-    umode := mode;
+    umode := Expression;
+    let ret = f () in
+    umode := old_unification_mode;
+    ret
+  with e ->
+    umode := old_unification_mode;
+    raise e
+
+let set_mode_pattern ~generate ~injective f =
+  let old_unification_mode = !umode
+  and old_gen = !generate_equations
+  and old_inj = !assume_injective in
+  try
+    umode := Pattern;
     generate_equations := generate;
+    assume_injective := injective;
     let ret = f () in
     umode := old_unification_mode;
     generate_equations := old_gen;
+    assume_injective := old_inj;
     ret
   with e ->
     umode := old_unification_mode;
     generate_equations := old_gen;
+    assume_injective := old_inj;
     raise e
 
 
@@ -2199,7 +2215,17 @@ and unify3 env t1 t1' t2 t2' =
       | (Ttuple tl1, Ttuple tl2) ->
           unify_list env tl1 tl2
       | (Tconstr (p1, tl1, _), Tconstr (p2, tl2, _)) when Path.same p1 p2 ->
-          unify_list env tl1 tl2
+          if !umode = Expression || not !generate_equations then
+            unify_list env tl1 tl2
+          else if !assume_injective then
+            set_mode_pattern ~generate:true ~injective:false
+                             (fun () -> unify_list env tl1 tl2)
+          else if in_current_module p1 (* || in_pervasives p1 *)
+                  || try is_datatype (Env.find_type p1 !env) with Not_found -> false then
+            unify_list env tl1 tl2
+          else
+            set_mode_pattern ~generate:false ~injective:false
+                             (fun () -> unify_list env tl1 tl2)
       | (Tconstr ((Path.Pident p) as path,[],_),
          Tconstr ((Path.Pident p') as path',[],_))
         when is_abstract_newtype !env path && is_abstract_newtype !env path'
@@ -2483,7 +2509,7 @@ let unify_gadt ~newtype_level:lev (env:Env.t ref) ty1 ty2 =
   try
     univar_pairs := [];
     newtype_level := Some lev;
-    set_mode Pattern (fun () -> unify env ty1 ty2);
+    set_mode_pattern ~generate:true ~injective:true (fun () -> unify env ty1 ty2);
     newtype_level := None;
     TypePairs.clear unify_eq_set;
   with e ->
